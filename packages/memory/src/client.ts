@@ -168,6 +168,33 @@ export class GbrainClient {
     });
   }
 
+  /**
+   * Write a page back to gbrain.
+   *
+   * Writes go through this one always-on server and nowhere else. A second
+   * `gbrain serve` process is how the PGLite WAL got corrupted before, which is
+   * why a self-healing launch wrapper exists at all. One owner, always.
+   *
+   * Returns success rather than throwing: losing a session summary is a bad
+   * day, not a reason to crash the agent on shutdown.
+   */
+  async remember(slug: string, title: string, content: string): Promise<boolean> {
+    if (!this.enabled) return false;
+    try {
+      const client = await this.connect();
+      if (!client) return false;
+      const res = await this.withTimeout(
+        client.callTool({ name: "put_page", arguments: { slug, title, content } }),
+        // Writes get a longer ceiling than reads: this runs after the call has
+        // ended, so there is no one waiting on it.
+        10_000,
+      );
+      return res !== null;
+    } catch {
+      return false;
+    }
+  }
+
   async close(): Promise<void> {
     const c = this.client;
     this.client = null;

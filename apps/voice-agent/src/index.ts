@@ -9,6 +9,7 @@ import { discordToModel, modelToDiscord } from "./audio.js";
 import { LiveSession, OUTPUT_SAMPLE_RATE } from "./live.js";
 import { McClient } from "./mc.js";
 import { buildPersona } from "./persona.js";
+import { reflect, type SessionExchange } from "./reflect.js";
 import { TurnQueue } from "./turn-queue.js";
 import { logger } from "./log.js";
 
@@ -78,9 +79,14 @@ async function main(): Promise<void> {
   let memoryBlock = "";
   let memoryInflight = false;
 
+  // Session record, for the post-call reflection write.
+  const exchanges: SessionExchange[] = [];
+  const toolsUsed: string[] = [];
+
   const hub = new VoiceHub((pcm48) => live.sendAudio(discordToModel(pcm48)));
 
   const turns = new TurnQueue(async (text) => {
+    exchanges.push({ who: "matt", said: text });
     const t = startTrace("utterance");
     t.mark("turn_start");
     // Hand the model whatever memory has already landed, then refresh behind
@@ -121,6 +127,11 @@ async function main(): Promise<void> {
         const result = await mc.call(name, args);
         t.mark("dispatched");
         t.end("ok");
+        toolsUsed.push(name);
+        // Attach the action to the utterance that prompted it, so the session
+        // page reads as cause and effect rather than two parallel lists.
+        const last = exchanges[exchanges.length - 1];
+        if (last) last.did = last.did ? `${last.did}, ${name}` : name;
         log.info(`tool ${name} -> ${result.slice(0, 80)}`);
         return result;
       },
@@ -142,6 +153,8 @@ async function main(): Promise<void> {
     log.info("shutting down");
     const stats = traceStats("utterance");
     if (stats.length) log.info(`latency:\n${formatStats(stats)}`);
+    // Reflection runs here, after the call, never in the speech path.
+    await reflect(gbrain, exchanges, toolsUsed).catch(() => false);
     turns.reset();
     live.close();
     hub.leave();
