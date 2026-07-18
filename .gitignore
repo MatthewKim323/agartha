@@ -1,0 +1,33 @@
+# ── secrets: this block goes in before anything else ever gets committed ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.mcp.json
+!.mcp.json.example
+secrets/
+**/credentials.json
+
+# ── runtime state ──
+data/*.db
+data/*.db-shm
+data/*.db-wal
+*.sqlite
+*.sqlite-journal
+logs/
+*.log
+
+# ── deps + build ──
+node_modules/
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# ── os / editor ──
+.DS_Store
+.idea/
+.vscode/
+*.swp
