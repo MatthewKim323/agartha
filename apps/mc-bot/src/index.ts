@@ -98,7 +98,7 @@ async function main() {
     return mcp;
   };
 
-  const http = await serveHttp(buildMcp, { host: cfg.mcp.host, port: cfg.mcp.port });
+  const http = await serveHttp(buildMcp, { host: cfg.mcp.host, port: cfg.mcp.port, token: cfg.mcp.token });
   log.info("itto is live. point the brain at the MCP endpoint and join the call.");
 
   // ── connection lifecycle + auto-reconnect ──

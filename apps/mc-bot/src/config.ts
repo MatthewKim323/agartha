@@ -26,6 +26,8 @@ export interface Config {
   mcp: {
     host: string;
     port: number;
+    /** Optional bearer token. Required in practice whenever host isn't loopback. */
+    token?: string;
   };
   tuning: {
     fastLoopHz: number;
@@ -64,8 +66,11 @@ export function loadConfig(): Config {
       ownerUsername: req("MC_OWNER_USERNAME"),
     },
     mcp: {
-      host: process.env.MCP_HOST ?? "0.0.0.0",
+      // Loopback by default: these tools are full control of the bot. Widening
+      // this is an explicit opt-in, and should come with MCP_AUTH_TOKEN.
+      host: process.env.MCP_HOST ?? "127.0.0.1",
       port: num("MCP_PORT", 3001),
+      token: process.env.MCP_AUTH_TOKEN || undefined,
     },
     tuning: {
       fastLoopHz: num("FAST_LOOP_HZ", 15),
