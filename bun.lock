@@ -41,6 +41,13 @@
         "typescript": "^5.4.0",
       },
     },
+    "packages/memory": {
+      "name": "@agartha/memory",
+      "version": "0.0.0",
+      "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0",
+      },
+    },
     "packages/shared": {
       "name": "@agartha/shared",
       "version": "0.0.0",
@@ -59,6 +66,8 @@
     "@agartha/mc-bot": ["@agartha/mc-bot@workspace:apps/mc-bot"],
 
     "@agartha/mcp-server": ["@agartha/mcp-server@workspace:packages/mcp-server"],
+
+    "@agartha/memory": ["@agartha/memory@workspace:packages/memory"],
 
     "@agartha/shared": ["@agartha/shared@workspace:packages/shared"],
 
