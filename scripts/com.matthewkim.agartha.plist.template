@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Template. install-launchd.sh fills __AGARTHA_DIR__ and __HOME__ and writes the
+  result to ~/Library/LaunchAgents/. Do not load this file directly.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.matthewkim.agartha</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__AGARTHA_DIR__/scripts/launch.sh</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>WorkingDirectory</key>
+  <string>__AGARTHA_DIR__</string>
+
+  <!--
+    launchd hands processes a minimal PATH that omits /opt/homebrew/bin, which
+    is where node, bun, and ffmpeg live on Apple Silicon. jabby learned this the
+    hard way when prism-media could not find ffmpeg at runtime.
+  -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>__HOME__</string>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/.agartha/agent.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/.agartha/agent.err.log</string>
+
+  <!--
+    Throttle restarts. Without this a config error becomes a spin loop that
+    burns CPU and floods the log.
+  -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>
