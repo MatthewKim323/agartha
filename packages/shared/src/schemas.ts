@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Zod schemas for MCP tool inputs. The MCP server uses these both for
- * runtime validation and to advertise JSON Schema to Hermes/Claude.
+ * runtime validation and to advertise JSON Schema to the voice agent.
  * Keep names + descriptions tool-call friendly — Claude reads them.
  */
 

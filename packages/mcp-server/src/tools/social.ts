@@ -4,7 +4,7 @@ import { ok, fail } from "./_util.js";
 
 /**
  * "Social" tools — the bot communicating. Voice replies are handled by
- * Hermes' Discord plugin directly; this is the in-game text-chat path
+ * the voice agent directly; this is the in-game text-chat path
  * (useful when not in a call, or for /commands).
  */
 export function registerSocialTools(server: McpServer, control: BotControl): void {

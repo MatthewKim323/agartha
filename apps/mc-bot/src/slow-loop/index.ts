@@ -10,16 +10,16 @@ import { logger } from "../util/logger.js";
 const log = logger("slow-loop");
 
 /**
- * A "nudge" is the slow loop telling Claude (via Hermes) that something might
- * be worth a reaction. Hermes ultimately decides whether to speak/act — we
- * just surface opportunities. The actual transport to Hermes is TBD (MCP
+ * A "nudge" is the slow loop telling the voice model that something might
+ * be worth a reaction. the agent ultimately decides whether to speak/act — we
+ * just surface opportunities. The actual transport to the agent is TBD (MCP
  * notification / sampling request / webhook), so we abstract it.
  */
 export interface NudgeSink {
   nudge(reason: string, state: GameState): void | Promise<void>;
 }
 
-/** Default sink: just logs. Swap for the Hermes bridge once wired. */
+/** Default sink: just logs. Swap for the the agent bridge once wired. */
 export const consoleNudgeSink: NudgeSink = {
   nudge(reason, state) {
     log.info(`NUDGE [${reason}]\n${formatStateForPrompt(state)}`);
@@ -28,9 +28,9 @@ export const consoleNudgeSink: NudgeSink = {
 
 /**
  * The slow loop. Runs every SLOW_LOOP_INTERVAL_MS (~4s) AND can be poked on
- * events. It does NOT call the LLM directly — Hermes owns the model. It runs
+ * events. It does NOT call the LLM directly — the agent owns the model. It runs
  * cheap trigger predicates and, when something fires, surfaces compact state
- * to Hermes via the NudgeSink.
+ * to the agent via the NudgeSink.
  */
 export class SlowLoop {
   private timer: ReturnType<typeof setInterval> | null = null;

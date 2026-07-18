@@ -2,7 +2,7 @@
  * Core shared types. These are the contract between the bot runtime
  * (apps/mc-bot) and the MCP surface (packages/mcp-server). Keep them
  * compact — the GameState object gets serialized to JSON and read by
- * Claude (via Hermes) on every slow-loop tick, so every field costs tokens.
+ * the voice model on every slow-loop tick, so every field costs tokens.
  */
 
 /** A plain {x,y,z} — we never pass Mineflayer's Vec3 class across boundaries. */
@@ -70,7 +70,7 @@ export type FollowState = "IDLE" | "DRIFT" | "CATCHUP" | "TASK";
 
 /**
  * The compact world snapshot. Produced every tick by the state extractor,
- * surfaced to Hermes/Claude as an MCP resource, and used by the slow loop
+ * surfaced to the voice agent as an MCP resource, and used by the slow loop
  * to decide whether anything is worth commenting on.
  */
 export interface GameState {
@@ -137,7 +137,7 @@ export interface BotGoal {
   error?: string;
 }
 
-/** Result envelope returned by every MCP tool, kept uniform for Hermes. */
+/** Result envelope returned by every MCP tool, kept uniform for the model. */
 export interface ToolResult {
   ok: boolean;
   message: string;

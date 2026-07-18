@@ -24,10 +24,10 @@ const log = logger("main");
  *   1. spawn the Mineflayer bot
  *   2. wrap it in a BotController (the single control surface)
  *   3. start the fast loop (15Hz follow + safety, pure code)
- *   4. start the slow loop (~4s trigger detection → nudges to Hermes)
- *   5. stand up the MCP server over HTTP so Hermes can connect + drive it
+ *   4. start the slow loop (~4s trigger detection → nudges to the agent)
+ *   5. stand up the MCP server over HTTP so the agent can connect + drive it
  *
- * Hermes itself runs SEPARATELY and connects to the MCP endpoint. It owns the
+ * The voice agent runs SEPARATELY and connects to the MCP endpoint. It owns the
  * model + Discord voice. We just expose the body and the senses.
  */
 async function main() {

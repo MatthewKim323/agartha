@@ -35,7 +35,7 @@ services:
   #   environment:
   #     MC_SERVER_HOST: mc
   #   ports:
-  #     - "3001:3001" # MCP endpoint for Hermes
+  #     - "3001:3001" # MCP endpoint for the voice agent
   #   restart: unless-stopped
 
 volumes:

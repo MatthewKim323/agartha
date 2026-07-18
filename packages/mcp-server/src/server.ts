@@ -4,13 +4,13 @@ import { registerTools } from "./tools/index.js";
 import { registerResources } from "./resources/index.js";
 
 /**
- * Build the MCP server that Hermes connects to.
+ * Build the MCP server the voice agent connects to.
  *
  * The bot lives in apps/mc-bot; it constructs a concrete BotControl against a
  * live Mineflayer instance and passes it in here. This package never imports
  * Mineflayer or the app — it only knows the BotControl interface from shared.
  *
- * Hermes registers it via: `hermes mcp add itto http://localhost:3001`
+ * The voice agent connects to it at http://localhost:3001/mcp
  */
 export function createMcpServer(control: BotControl): McpServer {
   const server = new McpServer({
@@ -18,10 +18,10 @@ export function createMcpServer(control: BotControl): McpServer {
     version: "0.0.0",
   });
 
-  // Tools = things Hermes can DO (move, mine, place, chat, run a skill...).
+  // Tools = things the agent can DO (move, mine, place, chat, run a skill...).
   registerTools(server, control);
 
-  // Resources = things Hermes can READ (the live world state snapshot).
+  // Resources = things the agent can READ (the live world state snapshot).
   registerResources(server, control);
 
   return server;

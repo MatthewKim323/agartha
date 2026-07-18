@@ -1,13 +1,14 @@
 # Deploy
 
-Prod topology is still an open decision (see `CONTEXT.md → Open Decisions`):
+Nothing here is wired to a real provider yet.
 
-- **MC server:** local Paper/Fabric for dev (see `infra/docker-compose.yml`).
-  Prod target TBD — managed host, our own VPS, or BYO-server (player hosts, bot
-  joins).
-- **Bot + MCP server:** `bot.Dockerfile` builds a runtime image. Runs anywhere
-  that can reach both the MC server and the Hermes process.
-- **Hermes:** lives OUTSIDE this repo. Installed + run separately, pointed at
-  the MCP endpoint this image exposes on `:3001`.
+The shape it assumes:
 
-Nothing here is wired to a real provider yet. Fill in once we pick one.
+- **mc-bot** runs wherever it can reach the Minecraft server. It exposes the
+  MCP control surface on 127.0.0.1:3001 by default. If you move it off the same
+  host as the voice agent, widen `MCP_HOST` *and* set `MCP_AUTH_TOKEN` — those
+  tools are full control of the bot.
+- **voice-agent** runs wherever it can reach Discord, the MCP endpoint, and
+  Gemini. It needs a `GEMINI_API_KEY` and its own Discord bot token.
+- **gbrain** is not deployed here. It is an existing always-on server that owns
+  the PGLite single-writer lock. Point at it; never start a second one.

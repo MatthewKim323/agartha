@@ -1,8 +1,8 @@
 import type { GameState } from "./types.js";
 
 /**
- * itto's personality. This is the seed system prompt Hermes runs Claude with.
- * Lives in the repo (not just Hermes' state) so it's version-controlled and
+ * itto's personality. This is the seed system prompt the voice agent runs on.
+ * Lives in the repo (not just the model provider) so it's version-controlled and
  * we can A/B it. Tone spec is in CONTEXT.md → "Personality / Vibes".
  */
 export const SYSTEM_PROMPT = `You are itto, a buddy playing Minecraft alongside a friend in their world.
@@ -24,7 +24,7 @@ You get a compact JSON snapshot of the world each turn. Use it to ground what yo
 
 /**
  * Render a GameState into a tight human/LLM-readable block. The slow loop
- * uses this when surfacing state to Hermes; keeps token cost predictable.
+ * uses this when surfacing state to the model; keeps token cost predictable.
  */
 export function formatStateForPrompt(s: GameState): string {
   const p = s.player;

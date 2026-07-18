@@ -17,7 +17,7 @@ import { logger } from "../util/logger.js";
 
 const log = logger("skills");
 
-/** The seed skill set. Hermes can author more as markdown in its own state. */
+/** The seed skill set. More can be added here as TypeScript. */
 export const SKILLS: Skill[] = [
   followPlayer,
   mineVein,

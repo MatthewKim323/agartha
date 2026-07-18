@@ -4,7 +4,7 @@ import type { WorldMemory } from "../memory/store.js";
 /**
  * Skills are composite behaviors built on top of the primitive BotControl
  * actions (move/mine/place/...). They map to the seed skill list in
- * CONTEXT.md. Hermes invokes them via the `run_skill` MCP tool; it may also
+ * CONTEXT.md. The agent invokes them via the `run_skill` MCP tool; it may also
  * author NEW skills over time as markdown in its own state dir — those don't
  * live here. These are the hand-written, hot-path ones we ship with.
  */
