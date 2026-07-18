@@ -1,0 +1,33 @@
+{
+  "name": "agartha",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A Minecraft companion with a real-time voice loop and shared long-term memory.",
+  "workspaces": ["apps/*", "packages/*"],
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "bun run --filter '*' lint",
+    "test": "bun test",
+    "bot": "bun --watch apps/mc-bot/src/index.ts",
+    "bot:dev": "MC_AUTH=offline MC_SERVER_HOST=localhost MC_SERVER_PORT=25565 MC_BOT_USERNAME=itto MC_OWNER_USERNAME=dev BRAIN_ENABLED=false bun --watch apps/mc-bot/src/index.ts",
+    "drive": "bun scripts/drive.ts",
+    "hello": "bun apps/mc-bot/scripts/hello-bot.ts",
+    "mc:up": "docker compose -f infra/docker-compose.yml up -d mc",
+    "mc:down": "docker compose -f infra/docker-compose.yml down",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/bun": "^1.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  },
+  "patchedDependencies": {
+    "minecraft-protocol@1.66.2": "patches/minecraft-protocol@1.66.2.patch"
+  }
+}

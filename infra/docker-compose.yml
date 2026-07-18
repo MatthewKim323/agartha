@@ -1,0 +1,42 @@
+# Local dev stack for itto.
+#   docker compose -f infra/docker-compose.yml up -d mc
+#
+# Spins up a Paper Minecraft server for the bot to join. The bot itself runs on
+# the host via `bun run bot` (easier to iterate than rebuilding an image), but a
+# bot service is included (commented) for a full containerized run later.
+
+services:
+  mc:
+    image: itzg/minecraft-server:latest
+    container_name: itto-mc
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "1.20.6"
+      ONLINE_MODE: "FALSE" # offline mode so the bot can log in without a real account in dev
+      MEMORY: "2G"
+      # give the bot op so teleport-fallback works in dev
+      OPS: "itto"
+      MODE: "survival"
+      DIFFICULTY: "normal"
+    volumes:
+      - mc-data:/data
+    restart: unless-stopped
+
+  # ── full containerized bot (optional; default is host `bun run bot`) ──
+  # bot:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/deploy/bot.Dockerfile
+  #   depends_on: [mc]
+  #   env_file: ../.env
+  #   environment:
+  #     MC_SERVER_HOST: mc
+  #   ports:
+  #     - "3001:3001" # MCP endpoint for Hermes
+  #   restart: unless-stopped
+
+volumes:
+  mc-data:
