@@ -1,11 +1,13 @@
 /**
- * Audio format bridging between Discord and ElevenLabs.
+ * Audio format bridging between Discord and the voice model.
  *
- *   Discord voice: 48000 Hz, 16-bit signed LE, STEREO (2ch)
- *   ElevenLabs CAI default: 16000 Hz, 16-bit signed LE, MONO (pcm_16000)
+ *   Discord voice:      48000 Hz, 16-bit signed LE, STEREO (2ch)
+ *   Gemini Live input:  16000 Hz, 16-bit signed LE, MONO
+ *   Gemini Live output: 24000 Hz, 16-bit signed LE, MONO
  *
- * Simple linear-interpolation resampling + channel mix. Good enough for speech;
- * if quality matters later, swap in a real resampler (e.g. soxr).
+ * Both conversions land on integer ratios (48k->16k is 3:1, 24k->48k is 1:2),
+ * which is why linear interpolation is fine here. If quality ever matters, swap
+ * in a real resampler (soxr).
  */
 
 /** Stereo 16-bit PCM -> mono 16-bit PCM (average the two channels). */
@@ -64,22 +66,15 @@ function decimateAvg(buf: Buffer, factor: number): Buffer {
   return out;
 }
 
-/** Discord (48k stereo) -> ElevenLabs (mono at `outRate`, default 16k). */
-export function discordToEleven(pcm48Stereo: Buffer, outRate = 16000): Buffer {
+/** Discord (48k stereo) -> model input (mono at `outRate`, default 16k). */
+export function discordToModel(pcm48Stereo: Buffer, outRate = 16000): Buffer {
   const mono = stereoToMono(pcm48Stereo);
   // 48k -> 16k is exactly 3:1 — average each triplet (cleaner than linear decimation).
   if (outRate === 16000) return decimateAvg(mono, 3);
   return resampleMono(mono, 48000, outRate);
 }
 
-/** ElevenLabs (mono at `inRate`, default 16k) -> Discord (48k stereo). */
-export function elevenToDiscord(pcmMono: Buffer, inRate = 16000): Buffer {
+/** Model output (mono at `inRate`, 24k for Gemini Live) -> Discord (48k stereo). */
+export function modelToDiscord(pcmMono: Buffer, inRate = 24000): Buffer {
   return monoToStereo(resampleMono(pcmMono, inRate, 48000));
-}
-
-/** Parse ElevenLabs format strings like "pcm_16000" -> sample rate. Default 16000. */
-export function sampleRateFromFormat(fmt: string | undefined): number {
-  if (!fmt) return 16000;
-  const m = /(\d{4,6})/.exec(fmt);
-  return m ? Number(m[1]) : 16000;
 }
