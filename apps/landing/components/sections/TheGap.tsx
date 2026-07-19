@@ -86,6 +86,12 @@ export default function TheGap() {
           ))}
         </div>
 
+        <p className="mt-6 font-mono text-[11px] leading-[1.8] text-white/30">
+          Registered-user figures as publicly reported by the companies and
+          industry trackers. Registered accounts are a softer measure than
+          monthly actives, and they are labelled that way here on purpose.
+        </p>
+
         {/* The turn. */}
         <div
           className="mt-10 border-t border-white/10 pt-10 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
