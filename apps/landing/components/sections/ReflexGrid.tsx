@@ -76,7 +76,7 @@ export default function ReflexGrid() {
         </p>
         <RevealText
           as="h2"
-          className="mt-5 max-w-4xl text-[48px] leading-[1.15] font-medium tracking-[-0.04em] text-white md:text-[64px]"
+          className="mt-5 max-w-4xl text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-white md:text-[64px]"
           duration={1}
         >
           Nothing slow runs in front of speech

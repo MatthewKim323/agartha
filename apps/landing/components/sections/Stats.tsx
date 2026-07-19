@@ -121,7 +121,7 @@ export default function Stats() {
         </p>
         <RevealText
           as="h2"
-          className="mt-5 text-[48px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[64px]"
+          className="mt-5 text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-ink md:text-[64px]"
           duration={1}
         >
           Every number here was observed

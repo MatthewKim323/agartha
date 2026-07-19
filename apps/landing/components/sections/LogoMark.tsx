@@ -18,7 +18,7 @@ export default function LogoMark() {
         {/* Clip-masked rise, same treatment as the hero display type. */}
         <span className="block overflow-hidden">
           <motion.span
-            className="block text-[22vw] leading-[0.85] font-semibold tracking-[-0.04em] text-white lowercase md:text-[16vw]"
+            className="block text-[22vw] leading-[0.8] font-semibold tracking-[-0.07em] text-white lowercase md:text-[16vw]"
             variants={{
               hidden: { y: '110%' },
               visible: { y: '0%' },

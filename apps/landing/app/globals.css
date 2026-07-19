@@ -33,9 +33,20 @@
   --text-label-sm: 11px;   /* x19 */
 
   /* Line heights as captured, expressed as ratios against their size.
-     25.92/16 = 1.62 body, 38.4/32 = 1.2 headings. */
-  --leading-body: 1.62;
+     153.6/192 = 0.8 display, 38.4/32 = 1.2 headings, 25.92/16 = 1.62 body. */
+  --leading-display: 0.8;
   --leading-heading: 1.2;
+  --leading-body: 1.62;
+
+  /* Tracking, converted from the capture's pixel values to em so it holds at
+     every size. The scale tightens as type grows, which is why a single
+     tracking value across headings read wrong: -13.44px at 192px is -0.07em,
+     but -0.72px at 24px is only -0.03em. */
+  --tracking-display: -0.07em; /* 192px */
+  --tracking-h1: -0.06em;      /* 64px  */
+  --tracking-h2: -0.04em;      /* 48px  */
+  --tracking-h3: -0.04em;      /* 32px  */
+  --tracking-h4: -0.03em;      /* 24px  */
 
   /* Mirrors lib/motion.ts so CSS-driven transitions match JS-driven ones. */
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);

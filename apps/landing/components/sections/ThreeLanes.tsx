@@ -73,7 +73,7 @@ function Step({ step }: { step: (typeof STEPS)[number] }) {
         {step.n} / {String(STEPS.length).padStart(2, '0')}
       </p>
       {/* 32px, matching the reference's measured label box. */}
-      <h3 className="mt-5 text-[32px] leading-[1.2] font-medium tracking-[-0.02em] text-white">
+      <h3 className="mt-5 text-[32px] leading-[1.2] font-medium tracking-[-0.04em] text-white">
         {step.name}
       </h3>
       <p className="mt-3 font-mono text-[12px] tracking-widest text-white/40 uppercase">

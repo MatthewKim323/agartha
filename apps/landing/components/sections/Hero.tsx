@@ -105,7 +105,7 @@ export default function Hero() {
         {/* Split display type. Fixed 192px as captured, stepped down at narrow
             widths where 192px would simply not fit. */}
         <div className="pointer-events-none flex-1 select-none">
-          <h1 className="flex h-full flex-col justify-center text-[clamp(3.25rem,13vw,192px)] leading-[0.85] font-medium tracking-[-0.035em] text-white uppercase">
+          <h1 className="flex h-full flex-col justify-center text-[clamp(3.25rem,13vw,192px)] leading-[0.8] font-medium tracking-[-0.07em] text-white uppercase">
             <DisplayWord delay={0.08} drift={driftRight}>Human</DisplayWord>
             <span className="self-end text-right">
               <DisplayWord delay={0.2} drift={driftLeft}>Speed</DisplayWord>

@@ -37,7 +37,7 @@ export default function About() {
       <div className="relative mx-auto grid max-w-[80%] grid-cols-1 gap-12 md:grid-cols-[0.8fr_1.1fr_1.1fr] md:gap-16">
         <RevealText
           as="h2"
-          className="text-[42px] leading-[1.1] font-medium tracking-[-0.03em] text-ink md:text-[48px]"
+          className="text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[48px]"
         >
           About
         </RevealText>
@@ -46,7 +46,7 @@ export default function About() {
           <div key={col.heading}>
             <RevealText
               as="h3"
-              className="text-[16px] font-semibold text-ink"
+              className="text-[16px] font-semibold tracking-[-0.04em] text-ink"
               delay={0.06 + i * 0.06}
               duration={0.7}
             >
