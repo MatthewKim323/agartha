@@ -50,7 +50,7 @@ const SKILLS = [
     name: 'Fetch item',
     file: 'fetch-item.ts',
     kind: 'fetch' as SkillKind,
-    body: 'agartha goes and gets something, from a chest or off the ground, and brings the thing back. You hear "done" when agartha actually has it, not on setting off.',
+    body: 'agartha goes and gets an item, from a chest or off the ground, and brings it back. You hear "done" once agartha is actually holding it, not on setting off.',
   },
   {
     name: 'Combat assist',

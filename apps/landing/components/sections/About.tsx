@@ -119,7 +119,7 @@ export default function About() {
                 'agartha hops in your Discord call and your',
                 'world at the same time. Ask for something and',
                 'agartha answers like a person would, then goes',
-                'and does the thing while you carry on.',
+                'and handles it while you carry on.',
               ]}
             />
             <a
