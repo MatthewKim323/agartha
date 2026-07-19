@@ -11,6 +11,7 @@ import {
   type MotionValue,
 } from 'motion/react';
 import { DUR, EASE } from '@/lib/motion';
+import { RevealOnMount } from '@/components/RevealText';
 
 // Full-bleed image slider.
 //
@@ -183,9 +184,13 @@ export default function SkillSlider() {
             <p className="font-mono text-[12px] tracking-widest text-accent">
               {active.file}
             </p>
-            <h3 className="mt-4 text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-white md:text-[48px]">
+            <RevealOnMount
+              as="h3"
+              className="mt-4 text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-white md:text-[48px]"
+              delay={0.05}
+            >
               {active.name}
-            </h3>
+            </RevealOnMount>
             <p className="mt-5 text-[15px] leading-[1.62] text-white/75">
               {active.body}
             </p>

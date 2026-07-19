@@ -168,3 +168,50 @@ export function RevealLines({
     </Tag>
   );
 }
+
+// Mount-driven variant of the same masked rise.
+//
+// The scroll-triggered version above is wrong for content that re-mounts —
+// slider slides, pinned steps — because ScrollTrigger fires once and the
+// element then swaps underneath it. This runs on mount instead, so each new
+// slide or step gets the same clip-rise the hero uses, on the same curve.
+export function RevealOnMount({
+  children,
+  as: Tag = 'div',
+  className = '',
+  delay = 0,
+  duration = 0.85,
+}: {
+  children: ReactNode;
+  as?: ElementType;
+  className?: string;
+  delay?: number;
+  duration?: number;
+}) {
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const inner = el.querySelector('[data-line-inner]');
+    if (!inner) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(inner, { yPercent: 0 });
+      return;
+    }
+    const ctx = gsap.context(() => {
+      gsap.fromTo(inner, { yPercent: 110 }, { yPercent: 0, duration, delay, ease: EASE });
+    }, el);
+    return () => ctx.revert();
+  }, [delay, duration]);
+
+  return (
+    <Tag ref={root} className={className}>
+      <span className="block overflow-hidden pb-[0.12em]">
+        <span data-line-inner className="block will-change-transform">
+          {children}
+        </span>
+      </span>
+    </Tag>
+  );
+}
