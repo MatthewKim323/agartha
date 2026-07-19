@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#1e1e1f"/>
+  <!-- One isometric block, same 2:1 projection and three-tone flat shading as
+       the terrain on the page. Top face carries the accent. -->
+  <path d="M16 6 27 12 16 18 5 12Z" fill="#c8fa00"/>
+  <path d="M5 12 16 18v8L5 20Z" fill="#7d9c00"/>
+  <path d="M27 12 16 18v8l11-6Z" fill="#a3cc00"/>
+</svg>

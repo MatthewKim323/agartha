@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import RevealText, { RevealLines } from '@/components/RevealText';
+import Gauge from '@/components/Gauge';
 
 // Replaces the old lineage section.
 //
@@ -127,17 +128,26 @@ export default function ReflexGrid() {
             })}
           </div>
 
-          <p className="mt-6 max-w-[52ch] font-mono text-[11px] leading-[1.8] text-white/35">
-            Follow, safety, lava, auto-eat. Plain code on a fixed loop. Confirmed
-            holding 15Hz from a live boot with the bot connected and the MCP
-            server serving.
-          </p>
+          <div className="mt-8 flex flex-col gap-8 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
+            <Gauge
+              value={15}
+              max={20}
+              unit="Hz"
+              label={'Sustained tick rate\nconfirmed from a live boot'}
+              className="whitespace-pre-line"
+            />
+            <p className="max-w-[46ch] font-mono text-[11px] leading-[1.8] text-white/35">
+              Follow, safety, lava, auto-eat. Plain code on a fixed loop, with
+              the bot connected and the MCP server serving. No model has ever
+              been in this path.
+            </p>
+          </div>
         </div>
 
         {/* Lane budgets */}
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           {LANES.map((l) => (
-            <div key={l.name} className="rounded-2xl border border-white/10 p-6">
+            <div key={l.name} className="card-lift hover:border-white/25 rounded-2xl border border-white/10 p-6">
               <div className="flex items-baseline justify-between">
                 <p className="text-[18px] font-medium text-white">{l.name}</p>
                 <p className="font-mono text-[12px] text-white/50 tabular-nums">

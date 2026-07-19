@@ -166,7 +166,7 @@ export default function Stats() {
 
         {/* Dispatch waterfall + in-world proof */}
         <div className="mt-20 grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr]">
-          <div className="rounded-2xl bg-ink/[0.04] p-8">
+          <div className="card-lift hover:border-white/25 rounded-2xl bg-ink/[0.04] p-8">
             <p className="font-mono text-[12px] tracking-widest text-muted uppercase">
               Tool dispatch
             </p>

@@ -94,3 +94,20 @@ html.lenis body {
   0%, 45%   { opacity: 1; }
   46%, 100% { opacity: 0.18; }
 }
+
+/* Card lift. Small enough to register as responsiveness rather than movement;
+   transform only, so it never triggers layout. */
+.card-lift {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+}
+/* Buttons acknowledge the press. */
+button:active,
+a:active {
+  transform: scale(0.985);
+}
