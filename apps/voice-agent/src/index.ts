@@ -11,6 +11,7 @@ import { McClient } from "./mc.js";
 import { buildPersona } from "./persona.js";
 import { callMemoryTool, isMemoryTool, MEMORY_TOOLS } from "./memory-tools.js";
 import { reflect, type SessionExchange } from "./reflect.js";
+import { Dashboard } from "./dashboard.js";
 import { TurnQueue } from "./turn-queue.js";
 import { logger } from "./log.js";
 
@@ -32,6 +33,7 @@ function env(name: string, fallback = ""): string {
 }
 
 async function main(): Promise<void> {
+  const startedAt = Date.now();
   const geminiKey = env("GEMINI_API_KEY");
   const discordToken = env("AGARTHA_DISCORD_TOKEN");
   const guildId = env("DISCORD_GUILD_ID");
@@ -92,6 +94,52 @@ async function main(): Promise<void> {
     log.info(sid ? `episodic memory recording (session ${sid.slice(0, 8)})` : "episodic memory unreachable");
   } else {
     log.info("episodic memory disabled (no InsForge config)");
+  }
+
+  // ── live coordination view ──
+  let reliabilityCache: Array<Record<string, unknown>> = [];
+  const dash = new Dashboard(() => ({
+    startedAt,
+    session: episodic.currentSession,
+    persona: persona.loaded,
+    connected: {
+      bot: mc.connected,
+      gbrain: gbrain.enabled,
+      episodic: episodic.enabled,
+      live: live.connected,
+    },
+    counters: {
+      turns: stats.transcripts,
+      tools: stats.tools,
+      "mic kb": Math.round(stats.micBytes / 1024),
+    },
+    reliability: reliabilityCache,
+  }));
+  if (env("DASHBOARD_PORT")) {
+    dash.start(Number(env("DASHBOARD_PORT")));
+    // Refresh reliability off the hot path; it is a DB round trip.
+    setInterval(() => {
+      void episodic.toolReliability().then((r) => (reliabilityCache = r)).catch(() => {});
+    }, 5000);
+
+    // The reflex loop runs in the BOT process, so surface its real state rather
+    // than inventing ticks here. This shows what the body is actually doing
+    // while the conversation lane is busy — which is the whole point of the
+    // three-lane split.
+    let lastReflex = "";
+    setInterval(() => {
+      if (!mc.connected) return;
+      void mc
+        .call("get_goal", {})
+        .then((r) => {
+          const goal = /no current goal/i.test(r) ? "idle" : r.slice(0, 40);
+          if (goal !== lastReflex) {
+            lastReflex = goal;
+            dash.push("reflex", goal);
+          }
+        })
+        .catch(() => {});
+    }, 1000);
   }
 
   // Retrieved context for the NEXT turn. Never awaited before speaking.
@@ -205,6 +253,7 @@ async function main(): Promise<void> {
       onUserTranscript: (text) => {
         stats.transcripts++;
         log.info(`heard: "${text}"`);
+        dash.push("voice", `heard: ${text.slice(0, 40)}`);
         turns.push(text);
       },
       onToolCall: async (name, args) => {
@@ -227,6 +276,7 @@ async function main(): Promise<void> {
         });
         stats.tools++;
         toolsUsed.push(name);
+        dash.push(isMemoryTool(name) ? "memory" : "action", name, { ms: rec.totalMs, ok: !failed });
         // Attach the action to the utterance that prompted it, so the session
         // page reads as cause and effect rather than two parallel lists.
         const last = exchanges[exchanges.length - 1];
@@ -275,6 +325,7 @@ async function main(): Promise<void> {
       })
       .catch(() => {});
     turns.reset();
+    dash.stop();
     live.close();
     hub.leave();
     await mc.close();
