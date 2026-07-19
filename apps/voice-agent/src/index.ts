@@ -9,6 +9,7 @@ import { discordToModel, modelToDiscord } from "./audio.js";
 import { LiveSession, OUTPUT_SAMPLE_RATE } from "./live.js";
 import { McClient } from "./mc.js";
 import { buildPersona } from "./persona.js";
+import { callMemoryTool, isMemoryTool, MEMORY_TOOLS } from "./memory-tools.js";
 import { reflect, type SessionExchange } from "./reflect.js";
 import { TurnQueue } from "./turn-queue.js";
 import { logger } from "./log.js";
@@ -139,7 +140,10 @@ async function main(): Promise<void> {
   const live = new LiveSession({
     apiKey: geminiKey,
     systemInstruction: persona.text,
-    tools: mc.functionDeclarations,
+    // Bot tools plus memory tools. Memory is callable, not just ambient:
+    // when someone asks a direct question about their own life, the agent has
+    // to actually go and look. Affordable because recall is ~25ms.
+    tools: [...mc.functionDeclarations, ...MEMORY_TOOLS],
     callbacks: {
       onAudio: (pcm) => {
         stats.modelChunks++;
@@ -154,7 +158,9 @@ async function main(): Promise<void> {
       },
       onToolCall: async (name, args) => {
         const t = startTrace("tool");
-        const result = await mc.call(name, args);
+        const result = isMemoryTool(name)
+          ? await callMemoryTool(gbrain, name, args)
+          : await mc.call(name, args);
         t.mark("dispatched");
         t.end("ok");
         stats.tools++;

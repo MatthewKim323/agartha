@@ -68,6 +68,35 @@ execution, blocks actually mined.
 Holds **15Hz (67ms/tick)** with the bot connected, the MCP server serving, and
 the slow loop running. Confirmed from a live boot, not inferred.
 
+## Memory as a callable tool
+
+Asked "yo what am i building at kali labs again" over a live session:
+
+```
+-> recall({"query":"what is matt building at kali"})   first tool @ 345ms
+said: "you mentioned building jabby and the kali platform, which seems
+       like a lot at once btw. is there one in particular?"
+```
+
+It called gbrain rather than guessing, and rewrote the question into a better
+query itself. This is only affordable because retrieval is ~25ms warm; the
+predecessor's 1.3-4.0s is why it could only ever use memory as a pre-pass.
+
+## Thinking budget on the conversation lane
+
+Same prompt ("can you chop a tree for me"), same session, only difference is
+the thinking budget:
+
+| | thinking on (default) | thinkingBudget 0 |
+|---|---|---|
+| first audio | 2342ms | **1343ms** |
+| tool calls | **zero** | set_goal + speak @ 1501ms |
+| spoken output | markdown reasoning read aloud | "aight, getting some wood for you" |
+
+With thinking on, the model narrated using set_goal instead of calling it. On
+this lane thinking does not add reasoning, it replaces acting. Deep reasoning
+belongs in the reflection lane, which is off the speech path and can afford it.
+
 ## Voice
 
 **Not measured.** No `GEMINI_API_KEY` has been issued, so the Live session has
