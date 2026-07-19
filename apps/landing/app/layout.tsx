@@ -16,9 +16,9 @@ const canela = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'agartha, a Minecraft companion that answers at human speed',
+  title: 'agartha · a Minecraft companion that keeps up',
   description:
-    'Voice-driven Minecraft companion. Speaks in about the time a person would, acts while it is still talking, and remembers you between sessions.',
+    'Voice-driven Minecraft companion. Answers about as fast as a person would, gets moving before it has finished talking, and remembers what you were doing last time.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

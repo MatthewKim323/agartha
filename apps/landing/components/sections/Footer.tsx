@@ -51,8 +51,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-[1.4fr_auto_auto]">
           <div>
             <p className="max-w-sm text-[16px] leading-[1.62] text-muted">
-              A Minecraft companion that answers at about the speed a person
-              would, and acts while it is still talking.
+              A Minecraft companion that answers about as fast as a person would,
+              and gets moving before it has finished the sentence.
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export default function Footer() {
 
       <div className="mx-auto mt-4 max-w-6xl border-t border-ink/15 px-6 py-6 md:px-10">
         <p className="font-mono text-[11px] tracking-widest text-faint uppercase">
-          Early build · Not affiliated with Mojang
+          Early build · Not affiliated with Mojang · Bring your own server
         </p>
       </div>
     </footer>

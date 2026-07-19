@@ -27,37 +27,37 @@ const STEPS = [
     n: '01',
     name: 'You Speak',
     timing: 'native VAD',
-    body: 'Discord voice reaches a session that is already open. There is no wake word and no per-turn connection, because the session never closed.',
+    body: 'Your voice lands in a session that never closed. No wake word, no connecting, nothing to sit through before it hears you.',
   },
   {
     n: '02',
     name: 'The Model Answers',
     timing: 'speech to speech',
-    body: 'One model takes audio in and gives audio out. Nothing transcribes to text and back, which is where composable pipelines spend their budget.',
+    body: 'One model takes audio in and gives audio back. Nothing gets turned into text and back again, which is where most of the waiting usually goes.',
   },
   {
     n: '03',
     name: 'A Call Is Emitted',
     timing: '345ms to first tool',
-    body: 'Measured over a live session. The model decides it needs the world or the memory, and emits a function call mid-sentence.',
+    body: 'Measured on a live session. It works out that it needs the world, or needs to remember something, and reaches for it mid sentence.',
   },
   {
     n: '04',
     name: 'MCP Dispatches',
     timing: '3ms median',
-    body: 'Straight to the bot over localhost. The handshake was paid once at startup, so this is the whole cost of getting from intent to the body.',
+    body: 'Straight through to the body. The connection was made once at startup, so this is the entire cost of going from deciding to doing.',
   },
   {
     n: '05',
     name: 'The Goal Starts',
     timing: '1ms to return',
-    body: 'set_goal returns before the work begins. That single millisecond is what lets "aight, otw" land while the bot is already pathing.',
+    body: 'The goal comes back before the work starts. That one millisecond is the reason it can say "aight, otw" and already be moving.',
   },
   {
     n: '06',
     name: 'It Reports Back',
     timing: 'on completion',
-    body: 'The goal runner pings when the work is actually done, not when it started. "Got the wood" arrives with the wood.',
+    body: 'It tells you when the job is genuinely finished, not when it began. "Got the wood" turns up with the wood.',
   },
 ] as const;
 

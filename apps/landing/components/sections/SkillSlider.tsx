@@ -38,37 +38,37 @@ const SKILLS = [
     name: 'Chop tree',
     file: 'chop-tree.ts',
     kind: 'chop' as SkillKind,
-    body: 'Walks to the nearest tree, fells it, and collects what drops. The goal returns on the first tick, so "aight, otw" lands while the bot is already pathing.',
+    body: 'Finds the nearest tree, takes it down, picks up what falls. It sets off the moment you ask, so "aight, otw" reaches you when it is already halfway there.',
   },
   {
     name: 'Mine down',
     file: 'mine-down.ts',
     kind: 'mine' as SkillKind,
-    body: 'Digs a safe staircase rather than a straight drop, with the reflex loop watching for lava the entire way down. No model involved in the safety check.',
+    body: 'Cuts a staircase instead of dropping straight down, watching for lava the whole way. That check runs in plain code, because you do not want a language model deciding whether that is lava.',
   },
   {
     name: 'Fetch item',
     file: 'fetch-item.ts',
     kind: 'fetch' as SkillKind,
-    body: 'Finds an item in the world or in storage and brings it back. Reports completion when it actually has the thing, not when it starts looking.',
+    body: 'Goes and gets something, from a chest or off the ground, and brings it to you. It says it is done when it actually has the thing, not when it sets off.',
   },
   {
     name: 'Combat assist',
     file: 'combat-assist.ts',
     kind: 'combat' as SkillKind,
-    body: 'Engages hostiles near you and disengages when they are gone. Runs on the fast loop, so it reacts at a speed a language model could never hit.',
+    body: 'Steps in when something hostile gets close, backs off when it does not. Runs on the fast loop, so it reacts quicker than anything waiting on a model could.',
   },
   {
     name: 'Scout ahead',
     file: 'scout-ahead.ts',
     kind: 'scout' as SkillKind,
-    body: 'Ranges out in front of you and reports what it finds. Useful precisely because it can talk about what it sees while it is still moving.',
+    body: 'Runs ahead and tells you what is out there. The useful part is that it can describe what it is looking at without stopping to do it.',
   },
   {
     name: 'Craft',
     file: 'craft.ts',
     kind: 'craft' as SkillKind,
-    body: 'Hand-rolled 3x3 crafting that works around a mineflayer no-op on 1.20.6. Inherited from itto and kept intact, because rewriting it re-earns the bug.',
+    body: 'Hand-rolled 3x3 crafting, written around a mineflayer quirk on 1.20.6. Inherited and deliberately left alone, because rewriting it just earns the bug back.',
   },
 ] as const;
 
@@ -157,7 +157,7 @@ export default function SkillSlider() {
     >
       <div className="relative mx-auto flex min-h-svh w-full max-w-6xl flex-col justify-center px-6 py-20 md:px-10">
         <p className="font-mono text-[12px] tracking-widest text-white/40">
-          SKILL LIBRARY
+          THINGS IT CAN DO
         </p>
 
         <div className="mt-10 grid grid-cols-1 items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-16">
@@ -208,7 +208,7 @@ export default function SkillSlider() {
           href="https://github.com/MatthewKim323/agartha/tree/main/apps/mc-bot/src/skills"
           className="mt-9 inline-flex w-fit items-center rounded-full bg-white px-7 py-3.5 text-sm text-ink transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.06]"
         >
-          Read the skill library
+          See what it can do
         </a>
 
         {/* Progress rail: 2px, rgba(255,255,255,0.25) track with a 0.7 fill,

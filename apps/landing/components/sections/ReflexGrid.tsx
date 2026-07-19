@@ -73,21 +73,21 @@ export default function ReflexGrid() {
     <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
       <div className="mx-auto max-w-6xl">
         <p className="font-mono text-[12px] tracking-widest text-accent">
-          THE RULE
+          THE ONE RULE
         </p>
         <RevealLines
           as="h2"
           className="mt-5 max-w-4xl text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-white md:text-[64px]"
           duration={1}
-          lines={['Nothing slow runs', 'in front of speech']}
+          lines={['Never make anyone', 'wait to be heard']}
         />
         <RevealLines
           className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-white/60"
           delay={0.1}
           lines={[
-            'Three lanes, strictly separated. The fast one never waits on the',
-            'slow one, which is the whole reason the bot feels alive while the',
-            'model is still thinking.',
+            'Three lanes that never block each other. The quick one keeps',
+            'running no matter what the slow one is up to, which is why it',
+            'still feels alive while it is thinking.',
           ]}
         />
 
@@ -137,9 +137,9 @@ export default function ReflexGrid() {
               className="whitespace-pre-line"
             />
             <p className="max-w-[46ch] font-mono text-[11px] leading-[1.8] text-white/35">
-              Follow, safety, lava, auto-eat. Plain code on a fixed loop, with
-              the bot connected and the MCP server serving. No model has ever
-              been in this path.
+              Following you, dodging lava, eating when it should. Plain code on a
+              fixed loop with everything else running. No model has ever touched
+              this path, and none ever will.
             </p>
           </div>
         </div>

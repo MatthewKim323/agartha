@@ -15,9 +15,12 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 // showing when each thing fired, so the explanation and the demo are the same
 // object.
 //
-// The exchange is real: the session logged in docs/MEASUREMENTS.md, with the
-// recall call and its 345ms mark exactly as recorded. Nothing here is a
-// plausible-looking mock.
+// On honesty: the TIMINGS are the measured ones from docs/MEASUREMENTS.md.
+// recall lands at 345ms, set_goal returns in 1ms, and the in-world inventory
+// change is the verified chop_tree run. The dialogue is representative rather
+// than a verbatim log, because the recorded session happened to be about
+// something other than Minecraft. So the marks are real and the words are not
+// quoted, which is the split a reader should be able to assume either way.
 
 type Line = {
   kind: 'you' | 'tool' | 'bot' | 'world';
@@ -27,19 +30,19 @@ type Line = {
 };
 
 const SCRIPT: Line[] = [
-  { kind: 'you', text: 'yo what am i building at kali labs again', at: 0 },
+  { kind: 'you', text: 'yo where did we leave off last night', at: 0 },
   {
     kind: 'tool',
-    text: 'recall({ query: "what is matt building at kali" })',
+    text: 'recall({ query: "last session, what were we building" })',
     at: 345,
     note: 'first tool call',
   },
   {
     kind: 'bot',
-    text: 'you mentioned building jabby and the kali platform, which seems like a lot at once btw. is there one in particular?',
+    text: 'we were walling in the base on the ravine side. you ran out of cobble halfway through and said you would sort it today',
     at: 480,
   },
-  { kind: 'you', text: 'yeah go grab some wood while i think', at: 3200 },
+  { kind: 'you', text: 'right. go grab some wood while i dig', at: 3200 },
   {
     kind: 'tool',
     text: 'set_goal({ skill: "chop_tree", label: "get wood" })',
@@ -49,7 +52,7 @@ const SCRIPT: Line[] = [
   { kind: 'bot', text: 'aight, otw', at: 3620 },
   { kind: 'world', text: 'IDLE → TASK · already pathing', at: 3630 },
   { kind: 'world', text: 'oak_log ×3 → ×6 · birch_log ×4', at: 9100 },
-  { kind: 'bot', text: 'got the wood', at: 9240 },
+  { kind: 'bot', text: 'got you six oak, four birch', at: 9240 },
 ];
 
 const LABEL: Record<Line['kind'], string> = {
@@ -106,17 +109,17 @@ export default function About() {
           <div>
             <RevealLines
               as="h2"
-              className="text-[38px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[40px] xl:text-[56px]"
-              lines={['A second player', 'who talks back']}
+              className="text-[38px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[38px] xl:text-[44px]"
+              lines={['Agents make the', 'perfect Minecraft duo']}
             />
             <RevealLines
               className="mt-8 max-w-[44ch] text-[17px] leading-[1.62] text-muted"
               delay={0.1}
               lines={[
-                'It joins your Discord call and your world at',
-                'the same time. One session holds the',
-                'conversation and the controls, so speaking',
-                'and acting are the same act.',
+                'It hops in your Discord call and your world',
+                'at the same time. Ask for something and it',
+                'answers like a person would, then goes and',
+                'does it while you get on with your own thing.',
               ]}
             />
             <a

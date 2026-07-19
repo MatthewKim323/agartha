@@ -19,9 +19,9 @@ import VoxelField from '@/components/VoxelField';
 // because the voice path had never run; it has now, and first tool call was
 // observed at 345ms over a live session. See docs/MEASUREMENTS.md.
 const META = [
-  { label: 'REFLEX LOOP', value: '15 HZ' },
-  { label: 'TOOL DISPATCH', value: '3 MS' },
-  { label: 'FIRST TOOL CALL', value: '345 MS' },
+  { label: 'REFLEXES', value: '15 HZ' },
+  { label: 'HANDS', value: '3 MS' },
+  { label: 'MEMORY', value: '345 MS' },
 ] as const;
 
 // Scroll parallax on the display words, recovered via motion-probe against the

@@ -146,14 +146,14 @@ export default function Stats() {
           className="mt-5 text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-ink md:text-[64px]"
           duration={1}
         >
-          Every number here was observed
+          Numbers we actually measured
         </RevealText>
         <RevealLines
           className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-muted"
           delay={0.12}
           lines={[
-            'Not estimated, not projected. The log scale below keeps both bars',
-            'legible; the gap between them is real either way.',
+            'Nothing here is estimated or rounded up. The scale below is',
+            'logarithmic so both bars stay readable, but the gap is real.',
           ]}
         />
 
@@ -171,9 +171,9 @@ export default function Stats() {
               Tool dispatch
             </p>
             <p className="mt-3 max-w-[42ch] text-[15px] leading-[1.62] text-muted">
-              Once the model emits a function call, the bot moves in about three
-              milliseconds. The version before this spawned a whole agent CLI per
-              reaction, behind a ten-second cooldown.
+              The moment it decides to do something, the body moves. Three
+              milliseconds, give or take. The old version booted a whole agent
+              for every reaction and sat behind a ten second cooldown.
             </p>
             <dl className="mt-8 space-y-4">
               {DISPATCH.map((d) => (
@@ -211,8 +211,8 @@ inventory
   birch_log   ×0  ─▶  ×4`}</code>
             </pre>
             <p className="mt-6 text-[14px] leading-[1.62] text-white/50">
-              MCP call, goal runner, skill execution, blocks actually mined.
-              Against a real server, not a fixture.
+              Call, goal runner, skill, blocks in the ground. On a real server,
+              not a test fixture.
             </p>
           </div>
         </div>

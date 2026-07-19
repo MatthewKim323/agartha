@@ -115,21 +115,21 @@ export default function LatencyFlow() {
   return (
     <section className="relative overflow-hidden bg-paper px-6 py-28 md:px-10 md:py-36">
       <div ref={root} className="mx-auto max-w-6xl">
-        <p className="font-mono text-[12px] tracking-widest text-muted">TO SCALE</p>
+        <p className="font-mono text-[12px] tracking-widest text-muted">TO SCALE, HONESTLY</p>
         <RevealText
           as="h2"
           className="mt-5 max-w-3xl text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-ink md:text-[64px]"
           duration={1}
         >
-          The path a sentence takes
+          What happens when you talk
         </RevealText>
         <RevealLines
           className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-muted"
           delay={0.1}
           lines={[
-            'Each leg below runs for its real measured duration, scaled by one',
-            'constant. The long pause is the model thinking. Everything after it',
-            'is the part that used to take seconds.',
+            'Every leg below runs for its real measured duration, scaled by one',
+            'constant. The long bit is it thinking. Everything after that is the',
+            'part that used to keep you waiting.',
           ]}
         />
 
