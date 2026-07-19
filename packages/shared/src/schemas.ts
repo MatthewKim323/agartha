@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SKILL_NAMES } from "./skills.js";
 
 /**
  * Zod schemas for MCP tool inputs. The MCP server uses these both for
@@ -44,8 +45,14 @@ export const ChatInput = z.object({
   message: z.string().describe("Message to send in Minecraft chat"),
 });
 
+/**
+ * `name` is an ENUM, not a string. See skills.ts — a free-form name let the
+ * model invent plausible-sounding skills that didn't exist ("mine_ore",
+ * "get_wood"), which failed only after it had already promised out loud to do
+ * the thing. The enum reaches Gemini intact through sanitizeSchema.
+ */
 export const RunSkillInput = z.object({
-  name: z.string().describe("Skill name, e.g. 'assist_mining'"),
+  name: z.enum(SKILL_NAMES).describe("Which skill to run. Must be one of the listed names."),
   args: z.record(z.unknown()).optional().describe("Skill-specific arguments"),
 });
 
@@ -84,6 +91,34 @@ export const PlacementSpecInput = z.object({
     .describe("Blocks to place: list of { pos, item }"),
 });
 
+/**
+ * A structure described by SHAPE rather than by coordinates. A 7x7 hut is ~180
+ * placements; a voice model is not going to emit 180 correct coordinates, so it
+ * describes what it wants and the geometry layer expands it.
+ */
+export const BuildInput = z.object({
+  shape: z
+    .enum(["floor", "wall", "box", "room", "pillar", "roof"])
+    .describe(
+      "What to build. 'room' is a complete little house (floor, 4 walls, roof, doorway) — use it for " +
+        "'build me a house/shelter/hut'. 'box' is hollow walls with no floor or roof. 'floor' is a flat " +
+        "platform. 'wall' is a single straight wall. 'pillar' is a 1-wide column. 'roof' is a cap.",
+    ),
+  material: z
+    .string()
+    .optional()
+    .describe("Block to build from, e.g. 'oak_planks', 'cobblestone'. Defaults to the best building block in inventory."),
+  origin: Vec3Schema.optional().describe(
+    "Minimum corner (lowest x/y/z). Defaults to just in front of the bot.",
+  ),
+  width: z.number().int().positive().optional().describe("X extent, 1-32 (default 5)"),
+  length: z.number().int().positive().optional().describe("Z extent, 1-32 (default 5)"),
+  height: z.number().int().positive().optional().describe("Y extent / wall height, 1-32 (default 3)"),
+  roofStyle: z.enum(["flat", "gable"]).optional().describe("Roof shape (default flat)"),
+  door: z.boolean().optional().describe("For 'room': leave a doorway (default true)"),
+  axis: z.enum(["x", "z"]).optional().describe("For 'wall': which way it runs (default x)"),
+});
+
 export type MoveToInputT = z.infer<typeof MoveToInput>;
 export type MineBlockInputT = z.infer<typeof MineBlockInput>;
 export type PlaceBlockInputT = z.infer<typeof PlaceBlockInput>;
@@ -96,6 +131,7 @@ export type LookDetectInputT = z.infer<typeof LookDetectInput>;
 export type NearbyNotableInputT = z.infer<typeof NearbyNotableInput>;
 export type CraftItemInputT = z.infer<typeof CraftItemInput>;
 export type PlacementSpecInputT = z.infer<typeof PlacementSpecInput>;
+export type BuildInputT = z.infer<typeof BuildInput>;
 
 // ── World memory (M3) ──
 
