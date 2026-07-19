@@ -1,4 +1,4 @@
-import type { GbrainClient } from "@agartha/memory";
+import type { EpisodicMemory, GbrainClient } from "@agartha/memory";
 import { formatMemory } from "@agartha/memory";
 import type { FunctionDeclaration } from "./mc.js";
 
@@ -51,11 +51,80 @@ export const REMEMBER_TOOL: FunctionDeclaration = {
   },
 };
 
-export const MEMORY_TOOLS: FunctionDeclaration[] = [RECALL_TOOL, REMEMBER_TOOL];
+/**
+ * Self-knowledge. Distinct from `recall`, which is memory about matt — this is
+ * memory about the agent's own behaviour, answered from recorded telemetry
+ * rather than from a prompt instructing it to reflect.
+ */
+export const HISTORY_TOOL: FunctionDeclaration = {
+  name: "history",
+  description:
+    "Look up your OWN past: what you did in previous sessions, which of your tools actually work, " +
+    "how fast you've been, and what you've failed at. Use this when asked how things went last " +
+    "time, whether you're good at something, or what went wrong. Answer honestly from what comes " +
+    "back, including when it says you're bad at something.",
+  parameters: {
+    type: "object",
+    properties: {
+      about: {
+        type: "STRING",
+        description:
+          "What to look up: 'sessions' (what happened recently), 'reliability' (which tools " +
+          "work and how often), 'latency' (how fast you've been), 'failures' (what went wrong).",
+        enum: ["sessions", "reliability", "latency", "failures"],
+      },
+    },
+    required: ["about"],
+  },
+};
+
+export const MEMORY_TOOLS: FunctionDeclaration[] = [RECALL_TOOL, REMEMBER_TOOL, HISTORY_TOOL];
 
 /** True if this tool name is handled here rather than by the bot. */
 export function isMemoryTool(name: string): boolean {
-  return name === "recall" || name === "remember";
+  return name === "recall" || name === "remember" || name === "history";
+}
+
+/**
+ * Render episodic rows as short prose. The model is about to speak this, so it
+ * has to be sayable — no tables, no JSON.
+ */
+export async function callHistoryTool(
+  episodic: EpisodicMemory,
+  args: Record<string, unknown>,
+): Promise<string> {
+  if (!episodic.enabled) return "i'm not keeping a record right now";
+  const about = String(args.about ?? "sessions");
+
+  if (about === "reliability") {
+    const rows = await episodic.toolReliability();
+    if (rows.length === 0) return "i haven't done enough yet to know";
+    return rows
+      .slice(0, 6)
+      .map((r) => `${r.tool}: ${r.success_rate}% of ${r.calls} tries, about ${r.avg_ms}ms`)
+      .join("; ");
+  }
+
+  if (about === "latency") {
+    const rows = await episodic.latencyByDay(5);
+    if (rows.length === 0) return "no timing history yet";
+    return rows.map((r) => `${String(r.day).slice(0, 10)}: median ${r.p50_ms}ms over ${r.n} turns`).join("; ");
+  }
+
+  if (about === "failures") {
+    const rows = await episodic.recentFailures(5);
+    if (rows.length === 0) return "nothing's failed recently";
+    return rows.map((r) => `${r.tool}: ${r.result}`).join("; ");
+  }
+
+  const rows = await episodic.recentSessions(4);
+  if (rows.length === 0) return "this is our first session together";
+  return rows
+    .map((s) => {
+      const when = String(s.started_at ?? "").slice(0, 16).replace("T", " ");
+      return `${when}: ${s.summary ?? "no summary"} (${s.tool_calls} actions)`;
+    })
+    .join("; ");
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -70,7 +139,12 @@ export async function callMemoryTool(
   name: string,
   args: Record<string, unknown>,
   now = new Date(),
+  episodic?: EpisodicMemory,
 ): Promise<string> {
+  if (name === "history") {
+    if (!episodic) return "i'm not keeping a record right now";
+    return callHistoryTool(episodic, args);
+  }
   if (!gbrain.enabled) return "my memory isn't connected right now";
 
   if (name === "recall") {

@@ -2,7 +2,7 @@
 import "./opus-patch.js";
 
 import { Client as DiscordClient, GatewayIntentBits } from "discord.js";
-import { GbrainClient, formatMemory } from "@agartha/memory";
+import { EpisodicMemory, GbrainClient, formatMemory } from "@agartha/memory";
 import { startTrace, formatStats, traceStats } from "@agartha/shared";
 import { VoiceHub } from "./voice.js";
 import { discordToModel, modelToDiscord } from "./audio.js";
@@ -76,6 +76,24 @@ async function main(): Promise<void> {
   });
   log.info(gbrain.enabled ? "gbrain enabled" : "gbrain disabled (no token) — running without memory");
 
+  // ── episodic memory: what the agent HAS DONE ──
+  // Separate store from gbrain on purpose. gbrain is semantic and private;
+  // this is behavioural, and it is what makes the history() tool possible.
+  // Writes are fire-and-forget so telemetry can never slow a turn.
+  const episodic = new EpisodicMemory({
+    url: env("INSFORGE_URL"),
+    apiKey: env("INSFORGE_API_KEY"),
+  });
+  if (episodic.enabled) {
+    const sid = await episodic.startSession({
+      world: env("MC_SERVER_HOST"),
+      player: env("MC_OWNER_USERNAME"),
+    });
+    log.info(sid ? `episodic memory recording (session ${sid.slice(0, 8)})` : "episodic memory unreachable");
+  } else {
+    log.info("episodic memory disabled (no InsForge config)");
+  }
+
   // Retrieved context for the NEXT turn. Never awaited before speaking.
   let memoryBlock = "";
   let memoryInflight = false;
@@ -142,6 +160,7 @@ async function main(): Promise<void> {
 
   const turns = new TurnQueue(async (text) => {
     exchanges.push({ who: "matt", said: text });
+    episodic.recordUtterance({ heard: text });
     const t = startTrace("utterance");
     t.mark("turn_start");
     // Hand the model whatever memory has already landed, then refresh behind
@@ -191,10 +210,21 @@ async function main(): Promise<void> {
       onToolCall: async (name, args) => {
         const t = startTrace("tool");
         const result = isMemoryTool(name)
-          ? await callMemoryTool(gbrain, name, args)
+          ? await callMemoryTool(gbrain, name, args, new Date(), episodic)
           : await mc.call(name, args);
         t.mark("dispatched");
-        t.end("ok");
+        const rec = t.end("ok");
+        // A tool that reports failure in its text is a failure. Recording that
+        // honestly is what makes tool_reliability worth querying.
+        const failed = /^(that failed|couldn't|error|unknown)/i.test(result);
+        episodic.recordToolCall({
+          tool: name,
+          args,
+          result,
+          ok: !failed,
+          duration_ms: rec.totalMs,
+          trace_id: rec.id,
+        });
         stats.tools++;
         toolsUsed.push(name);
         // Attach the action to the utterance that prompted it, so the session
@@ -238,6 +268,12 @@ async function main(): Promise<void> {
     if (stats.length) log.info(`latency:\n${formatStats(stats)}`);
     // Reflection runs here, after the call, never in the speech path.
     await reflect(gbrain, exchanges, toolsUsed).catch(() => false);
+    await episodic
+      .endSession(exchanges.map((e) => e.said).join(" | ").slice(0, 500), {
+        tools: toolsUsed.length,
+        utterances: exchanges.length,
+      })
+      .catch(() => {});
     turns.reset();
     live.close();
     hub.leave();

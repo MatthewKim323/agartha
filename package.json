@@ -29,5 +29,8 @@
   },
   "patchedDependencies": {
     "minecraft-protocol@1.66.2": "patches/minecraft-protocol@1.66.2.patch"
+  },
+  "dependencies": {
+    "@insforge/sdk": "^1.4.5"
   }
 }
