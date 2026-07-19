@@ -37,15 +37,15 @@ export default function Validation() {
   return (
     <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
       <div className="mx-auto max-w-6xl">
-        <p className="font-mono text-[12px] tracking-widest text-accent">
-          AN OPEN ASK FROM A16Z
-        </p>
-
         <RevealLines
           as="h2"
-          className="mt-5 max-w-4xl text-[42px] leading-[1.18] font-medium tracking-[-0.04em] text-white md:text-[56px]"
+          className="max-w-5xl text-[42px] leading-[1.12] font-medium tracking-[-0.045em] text-white md:text-[64px]"
           duration={1}
-          lines={['Somebody asked for this', 'before we built it']}
+          lines={[
+            'a16z partners are looking',
+            'for a gaming companion.',
+            'We already built one.',
+          ]}
         />
 
         {/* The quote. Set large, because it is the section. */}
