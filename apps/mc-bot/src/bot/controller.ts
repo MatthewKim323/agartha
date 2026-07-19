@@ -12,7 +12,7 @@ import type {
 } from "@agartha/shared";
 import type { Config } from "../config.js";
 import { extractGameState } from "../state/extract.js";
-import { HOSTILE } from "../state/hostiles.js";
+import { isHostile, matchesTarget, type ClassifiableEntity } from "../state/entities.js";
 import { logger } from "../util/logger.js";
 
 const log = logger("controller");
@@ -145,8 +145,26 @@ export class BotController implements BotControl {
   async attack(entityId: number): Promise<void> {
     const entity = this.bot.entities[entityId];
     if (!entity) throw new Error("entity gone");
+
+    // Last line of defence. Targeting already excludes the owner, but attack()
+    // is reachable directly over MCP with an arbitrary id, so it re-checks.
+    if ((entity as { username?: string }).username === this.cfg.mc.ownerUsername) {
+      throw new Error("refusing to attack the owner");
+    }
+
     await this.equipBestWeapon();
-    await this.bot.attack(entity);
+
+    // The server validates a hit against where our head is actually pointing,
+    // so a swing without this looks like a hit client-side and does nothing.
+    const height = (entity as { height?: number }).height ?? 1.6;
+    await this.bot.lookAt(entity.position.offset(0, height * 0.5, 0), true);
+
+    // Vanilla entity interaction range is 3 blocks. Swinging from further is a
+    // silent no-op, so fail loudly and let the caller path in instead.
+    const dist = this.bot.entity.position.distanceTo(entity.position);
+    if (dist > 3.5) throw new Error(`too far to hit (${dist.toFixed(1)} blocks)`);
+
+    this.bot.attack(entity);
   }
 
   async chat(message: string): Promise<void> {
@@ -636,18 +654,52 @@ export class BotController implements BotControl {
   }
 
   nearestHostile(opts?: { maxDistance?: number; preferThreatTo?: Vec3Lit }): EntityInfo | null {
+    return this.nearestEntity({ ...opts, match: "hostile" });
+  }
+
+  nearestEntity(opts?: {
+    match?: string;
+    maxDistance?: number;
+    preferThreatTo?: Vec3Lit;
+    allowPlayers?: boolean;
+  }): EntityInfo | null {
     const maxDistance = opts?.maxDistance ?? 16;
     const here = this.bot.entity.position;
     const ref = opts?.preferThreatTo
       ? new Vec3(opts.preferThreatTo.x, opts.preferThreatTo.y, opts.preferThreatTo.z)
       : here;
+
     const candidates = Object.values(this.bot.entities).filter(
-      (e) => !!e.name && HOSTILE.has(e.name) && here.distanceTo(e.position) <= maxDistance,
+      (e) =>
+        e.id !== this.bot.entity.id &&
+        here.distanceTo(e.position) <= maxDistance &&
+        matchesTarget(e as ClassifiableEntity, {
+          match: opts?.match,
+          owner: this.cfg.mc.ownerUsername,
+          allowPlayers: opts?.allowPlayers,
+        }),
     );
     if (candidates.length === 0) return null;
+
     candidates.sort((a, b) => ref.distanceTo(a.position) - ref.distanceTo(b.position));
     const e = candidates[0]!;
-    return { id: e.id, name: e.name!, pos: toLit(e.position), distance: round(here.distanceTo(e.position)) };
+    return {
+      id: e.id,
+      name: e.name ?? e.username ?? "entity",
+      pos: toLit(e.position),
+      distance: round(here.distanceTo(e.position)),
+      kind: (e as ClassifiableEntity).kind,
+      hostile: isHostile(e as ClassifiableEntity),
+    };
+  }
+
+  entityExists(entityId: number): boolean {
+    const e = this.bot.entities[entityId];
+    // Mineflayer removes entities on death/unload, but a corpse can linger a
+    // tick with health 0 — treat that as gone so kill counts stay honest.
+    if (!e) return false;
+    const hp = (e as { health?: number }).health;
+    return hp === undefined || hp > 0;
   }
 
   // ── Containers ───────────────────────────────────────────────────────────

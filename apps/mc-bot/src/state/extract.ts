@@ -1,6 +1,6 @@
 import type { Bot } from "mineflayer";
 import type { ChatLine, GameState, Vec3Lit } from "@agartha/shared";
-import { HOSTILE } from "./hostiles.js";
+import { isHostile } from "./entities.js";
 
 /** Rolling chat buffer. The fast loop pushes into this; we snapshot it here. */
 const recentChat: ChatLine[] = [];
@@ -26,7 +26,7 @@ export function extractGameState(bot: Bot, ownerUsername: string): GameState {
   const player = bot.players[ownerUsername]?.entity ?? null;
 
   const hostiles = Object.values(bot.entities)
-    .filter((e) => e.name && HOSTILE.has(e.name))
+    .filter((e) => e.name && isHostile(e))
     .map((e) => ({
       id: e.id,
       name: e.name!,

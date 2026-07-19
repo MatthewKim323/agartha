@@ -42,8 +42,12 @@ interface McpTool {
  * `drain_speech` belonged to the old outbox polling loop, which this design
  * removes: the model speaks directly, so exposing it would let it read its own
  * outbound queue back to itself.
+ *
+ * `drain_nudges` is drained by the agent on a timer and injected as context.
+ * Exposing it as a callable tool would let the model poll the world in a loop
+ * instead of just living in it.
  */
-const EXCLUDED = new Set(["drain_speech"]);
+const EXCLUDED = new Set(["drain_speech", "drain_nudges"]);
 
 /**
  * Gemini's Schema is a SUBSET of JSON Schema, and it rejects the whole session

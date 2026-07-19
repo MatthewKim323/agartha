@@ -2,6 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ok } from "@agartha/mcp-server";
 import { SpeakInput } from "@agartha/shared";
 import { pushSpeech, drainSpeech } from "./outbox.js";
+import { drainNudges } from "../slow-loop/nudge-outbox.js";
 
 /**
  * Voice tools. `speak` is how the brain (jabby) talks out loud in the call —
@@ -17,6 +18,19 @@ export function registerVoiceTools(server: McpServer): void {
     async ({ text }) => {
       pushSpeech(text);
       return ok("said");
+    },
+  );
+
+  server.tool(
+    "drain_nudges",
+    "(voice agent only) Return and clear world events the slow loop thinks might be worth reacting to — a hostile approaching, the player in danger, a tool about to break, nightfall. These are OPPORTUNITIES, not commands: stay quiet unless one genuinely matters.",
+    {},
+    async () => {
+      const nudges = drainNudges();
+      return ok(
+        nudges.length ? `${nudges.length} event(s)` : "nothing happening",
+        nudges,
+      );
     },
   );
 

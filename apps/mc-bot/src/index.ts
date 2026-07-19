@@ -6,6 +6,7 @@ import { BotController } from "./bot/controller.js";
 import { FastLoop } from "./fast-loop/index.js";
 import { SlowLoop, consoleNudgeSink } from "./slow-loop/index.js";
 import { createAgentBrainSink } from "./slow-loop/agent-sink.js";
+import { voiceNudgeSink } from "./slow-loop/nudge-outbox.js";
 import { GoalRunner } from "./slow-loop/goal-runner.js";
 import { registerGoalTools } from "./slow-loop/goal-tools.js";
 import { registerSkillTools, runSkillByName } from "./skills/index.js";
@@ -78,11 +79,14 @@ async function main() {
 
   // 4 — slow loop. The sink routes "nudges" (something worth reacting to) to
   // the brain: an external agent when configured, else just log.
+  // Default: queue nudges for the voice agent to drain, so the agent can speak
+  // FIRST when something happens. The legacy CLI-spawn sink is still available
+  // behind BRAIN_ENABLED, but it is the slow path this project replaced.
   const sink =
     cfg.brain.enabled && cfg.brain.cmd.length > 0
       ? createAgentBrainSink({ cmd: cfg.brain.cmd, dir: cfg.brain.dir, cooldownMs: cfg.brain.cooldownMs })
-      : consoleNudgeSink;
-  if (cfg.brain.enabled) log.info("brain: external agent");
+      : voiceNudgeSink;
+  log.info(cfg.brain.enabled ? "nudges: external CLI brain" : "nudges: queued for the voice agent");
   const slow = new SlowLoop(controller, cfg, sink, runner, memory);
   slow.start();
 

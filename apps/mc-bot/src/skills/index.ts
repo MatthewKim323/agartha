@@ -6,6 +6,7 @@ import { mineVein } from "./assist-mining.js";
 import { chopTree } from "./chop-tree.js";
 import { collectDrops } from "./collect-drops.js";
 import { combatAssist } from "./combat-assist.js";
+import { hunt } from "./hunt.js";
 import { fetchItem } from "./fetch-item.js";
 import { scoutAhead } from "./scout-ahead.js";
 import { buildHelper } from "./build-helper.js";
@@ -24,6 +25,7 @@ export const SKILLS: Skill[] = [
   chopTree,
   collectDrops,
   combatAssist,
+  hunt,
   fetchItem,
   scoutAhead,
   buildHelper,

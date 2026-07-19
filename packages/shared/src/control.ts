@@ -88,6 +88,24 @@ export interface BotControl {
   /** Nearest hostile mob, optionally ranked by threat to a point (the player). */
   nearestHostile(opts?: { maxDistance?: number; preferThreatTo?: Vec3Lit }): EntityInfo | null;
 
+  /**
+   * Nearest entity matching a target query — the general form of
+   * `nearestHostile`, which is now just this with `match: "hostile"`.
+   *
+   * `match` is a mob name ("cow") or a group ("hostile" | "animal" | "food" |
+   * "passive" | "player" | "any"). The owner is never a valid target, and
+   * players require `allowPlayers` — PvP is opt-in and never inferred.
+   */
+  nearestEntity(opts?: {
+    match?: string;
+    maxDistance?: number;
+    preferThreatTo?: Vec3Lit;
+    allowPlayers?: boolean;
+  }): EntityInfo | null;
+
+  /** Is this entity still loaded and alive? Used to tell a kill from a flee. */
+  entityExists(entityId: number): boolean;
+
   // ── Containers (M3 world memory) ──
 
   /** Open a container at a coord, read its contents, close it. Container-side items only. */

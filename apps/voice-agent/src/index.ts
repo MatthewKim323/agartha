@@ -236,6 +236,38 @@ async function main(): Promise<void> {
       });
   }
 
+  /**
+   * Proactive presence.
+   *
+   * The bot's slow loop detects things worth reacting to — a creeper closing
+   * in, a tool about to break, nightfall. Until now those went to a CLI brain
+   * that is no longer in the loop, so the agent could only ever ANSWER. A
+   * friend playing with you says "yo, creeper behind you" unprompted.
+   *
+   * Injected as CONTEXT, not as an instruction to speak. The persona already
+   * says to stay mostly quiet, so the model decides whether the moment is worth
+   * it. Surfacing an opportunity is not the same as ordering it to talk.
+   */
+  function startNudgePoll(): void {
+    setInterval(() => {
+      if (!mc.connected || !live.connected) return;
+      void mc
+        .call("drain_nudges", {})
+        .then((raw) => {
+          if (!raw || /nothing happening/i.test(raw)) return;
+          // Speaking mid-sentence over yourself is worse than staying quiet.
+          if (turns.busy) return;
+          live.sendContext(
+            `[world event — you noticed this yourself, nobody asked. React ONLY if it genuinely matters, ` +
+              `otherwise stay quiet and say nothing at all]\n${raw.slice(0, 600)}`,
+          );
+          dash.push("reflex", "world event");
+          log.info(`nudge: ${raw.slice(0, 80)}`);
+        })
+        .catch(() => {});
+    }, 2000);
+  }
+
   const live = new LiveSession({
     apiKey: geminiKey,
     systemInstruction: persona.text,
@@ -301,6 +333,7 @@ async function main(): Promise<void> {
       await live.start();
       // Name the channel explicitly: "in the call" is useless when you're
       // staring at Discord wondering which one to click.
+      startNudgePoll();
       log.info(`>>> LISTENING in "${channel?.name ?? channelId}" (${guild.name}) — join that channel and talk <<<`);
     } catch (e) {
       log.error(`could not join voice: ${(e as Error).message}`);

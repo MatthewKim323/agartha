@@ -14,11 +14,15 @@ export interface Vec3Lit {
 
 export interface EntityInfo {
   id: number;
-  /** e.g. "zombie", "creeper", "skeleton" */
+  /** e.g. "zombie", "creeper", "skeleton", "cow" */
   name: string;
   pos: Vec3Lit;
   /** blocks from the bot, rounded to 1 decimal */
   distance: number;
+  /** minecraft-data category: "Hostile mobs" | "Passive mobs" | … */
+  kind?: string;
+  /** True for hostile mobs, so callers can decide how carefully to engage. */
+  hostile?: boolean;
 }
 
 /** The block a player is currently looking at (raycast from their eyes). */
