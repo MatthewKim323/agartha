@@ -162,7 +162,13 @@ export default function VoxelSteps({
       // pinning to the cursor. Between steps it follows a parabolic hop and
       // tumbles a quarter turn; on landing it squashes and recovers. That
       // combination is what reads as rolling rather than sliding.
-      const target = Math.min(1, Math.max(0, progress.current)) * (count - 1);
+      // Same scale the active index uses (v * count, clamped), so the block
+      // always sits on the step that is lit. Scaling by count-1 instead drifted
+      // the two apart by half a step by the end of the track.
+      const target = Math.min(
+        count - 1,
+        Math.max(0, progress.current) * count,
+      );
       eased += (target - eased) * 0.09;
 
       const i = Math.floor(eased);
