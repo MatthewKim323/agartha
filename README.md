@@ -1,4 +1,4 @@
-# agartha
+# agar
 
 A Minecraft companion that talks back in about the time a person would, acts while it's still talking, and remembers you between sessions because it shares a brain with [jabby](https://github.com/MatthewKim323).
 
