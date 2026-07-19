@@ -110,9 +110,10 @@ export default function ThreeLanes() {
   return (
     <section
       ref={track}
-      // Six steps need more track than three did. Still shorter on mobile,
-      // where the ring is hidden and there is less to look at.
-      className="relative h-[400vh] bg-surface md:h-[560vh]"
+      // ~66vh of scroll per step: enough for each panel to land, short enough
+      // that the section does not become a tunnel. Shorter again on mobile,
+      // where the staircase is hidden and there is less to look at.
+      className="relative h-[300vh] bg-surface md:h-[400vh]"
     >
       <div className="sticky top-0 flex h-svh items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-16 px-6 md:grid-cols-[1fr_1.1fr] md:px-10">

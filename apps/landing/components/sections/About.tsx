@@ -34,7 +34,7 @@ const COLUMNS = [
 
 export default function About() {
   return (
-    <section className="relative overflow-hidden bg-paper py-24 md:py-32">
+    <section className="relative overflow-hidden bg-paper py-28 md:py-40">
       {/* A pixel field instead of ruled lines: same job — signalling that the
           page is built rather than drawn — but in the product's own idiom, and
           quiet enough to sit behind body copy. */}
