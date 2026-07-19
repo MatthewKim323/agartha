@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# Block commits containing live credentials.
+#
+# This is a public repo holding a project whose .env has Anthropic, Gemini,
+# Discord, gbrain, and InsForge credentials in it. A one-line shell guard typed
+# from memory before each commit is not a control — it has already silently
+# failed once by warning and committing anyway. This exits non-zero, so git
+# stops.
+#
+# Enabled with: git config core.hooksPath .githooks
+
+set -uo pipefail
+
+# Match credential SHAPES, not the word "key". Documentation that says "never
+# commit keys" is not a secret, and false positives train you to use --no-verify.
+PATTERNS=(
+  'sk-ant-api03-[A-Za-z0-9_-]{20}'   # anthropic
+  'AIzaSy[A-Za-z0-9_-]{30}'          # google
+  'gbrain_[a-f0-9]{40}'              # gbrain token
+  'sk_[a-f0-9]{40}'                  # elevenlabs
+  'ghp_[A-Za-z0-9]{36}'              # github pat
+  'xox[baprs]-[A-Za-z0-9-]{20}'      # slack
+  '-----BEGIN [A-Z ]*PRIVATE KEY'    # pem
+  '[MN][A-Za-z0-9_-]{23}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27}' # discord bot token
+)
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+fail=0
+for pattern in "${PATTERNS[@]}"; do
+  # -e is required: the PEM pattern begins with dashes and would otherwise be
+  # parsed as grep options.
+  if hits=$(git diff --cached -U0 | grep -nE -e "^\+" | grep -E -e "$pattern"); then
+    echo "BLOCKED: staged change contains something shaped like a credential" >&2
+    echo "  pattern: $pattern" >&2
+    echo "$hits" | sed 's/^/  /' | cut -c1-140 >&2
+    fail=1
+  fi
+done
+
+# Files that should never be tracked regardless of contents.
+for f in $staged; do
+  case "$f" in
+    .env|.env.*|.insforge/project.json|*.pem|*.p12)
+      [ "$f" = ".env.example" ] && continue
+      echo "BLOCKED: $f must never be committed" >&2
+      fail=1
+      ;;
+  esac
+done
+
+if [ "$fail" = "1" ]; then
+  echo >&2
+  echo "Nothing was committed. Unstage the offending change." >&2
+  exit 1
+fi
+exit 0
