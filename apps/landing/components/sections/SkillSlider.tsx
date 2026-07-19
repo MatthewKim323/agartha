@@ -12,6 +12,7 @@ import {
 } from 'motion/react';
 import { DUR, EASE } from '@/lib/motion';
 import { RevealOnMount } from '@/components/RevealText';
+import VoxelField from '@/components/VoxelField';
 
 // Full-bleed image slider.
 //
@@ -26,43 +27,47 @@ import { RevealOnMount } from '@/components/RevealText';
 // 1 is what advances the slide. Pausing stops the clock, so the line freezes
 // exactly where it sits. They cannot disagree because there is only one of them.
 //
-// Images are the reference's own renders, standing in until there is Minecraft
-// capture footage. Each skill maps to a real file in apps/mc-bot/src/skills/.
+// Each slide draws its own seeded voxel terrain rather than carrying a bitmap.
+// The previous version used the design reference's product renders, which could
+// not ship in the repo — so the deployed page would have shown six empty
+// panels. Generated art has no such problem and is on-subject besides.
+//
+// Each skill maps to a real file in apps/mc-bot/src/skills/.
 const SKILLS = [
   {
     name: 'Chop tree',
     file: 'chop-tree.ts',
-    image: '/slides/slide-1.webp',
+    seed: 9173,
     body: 'Walks to the nearest tree, fells it, and collects what drops. The goal returns on the first tick, so "aight, otw" lands while the bot is already pathing.',
   },
   {
     name: 'Mine down',
     file: 'mine-down.ts',
-    image: '/slides/slide-2.avif',
+    seed: 18346,
     body: 'Digs a safe staircase rather than a straight drop, with the reflex loop watching for lava the entire way down. No model involved in the safety check.',
   },
   {
     name: 'Fetch item',
     file: 'fetch-item.ts',
-    image: '/slides/slide-3.webp',
+    seed: 27519,
     body: 'Finds an item in the world or in storage and brings it back. Reports completion when it actually has the thing, not when it starts looking.',
   },
   {
     name: 'Combat assist',
     file: 'combat-assist.ts',
-    image: '/slides/slide-4.avif',
+    seed: 36692,
     body: 'Engages hostiles near you and disengages when they are gone. Runs on the fast loop, so it reacts at a speed a language model could never hit.',
   },
   {
     name: 'Scout ahead',
     file: 'scout-ahead.ts',
-    image: '/slides/slide-5.avif',
+    seed: 45865,
     body: 'Ranges out in front of you and reports what it finds. Useful precisely because it can talk about what it sees while it is still moving.',
   },
   {
     name: 'Craft',
     file: 'craft.ts',
-    image: '/slides/slide-6.webp',
+    seed: 55038,
     body: 'Hand-rolled 3x3 crafting that works around a mineflayer no-op on 1.20.6. Inherited from itto and kept intact, because rewriting it re-earns the bug.',
   },
 ] as const;
@@ -154,19 +159,14 @@ export default function SkillSlider() {
           carries the movement, matching the reference. */}
       <AnimatePresence initial={false}>
         <motion.div
-          key={active.image}
+          key={active.seed}
           className="absolute inset-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: DUR.slow, ease: EASE.expo }}
         >
-          <img
-            src={active.image}
-            alt=""
-            aria-hidden
-            className="h-full w-full object-cover"
-          />
+          <VoxelField seed={active.seed} scale={0.62} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/25" />
         </motion.div>
       </AnimatePresence>

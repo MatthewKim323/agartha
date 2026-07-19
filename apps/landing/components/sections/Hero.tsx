@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform, type MotionValue } from 'motion/react';
 import { DUR, EASE, DIST } from '@/lib/motion';
+import VoxelField from '@/components/VoxelField';
 
 // Rebuilt against the capture rather than the screenshot.
 //
@@ -70,18 +71,14 @@ export default function Hero() {
 
   return (
     <section className="relative h-svh w-full overflow-hidden bg-surface">
-      {/* PLACEHOLDER: precept's factory footage. Needs agartha capture —
-          ideally the bot pathing to a tree while audio is already playing. */}
-      <video
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-      >
-        <source src="/hero.mp4" type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-black/45" />
+      {/* Generated backdrop. Previously borrowed footage from the design
+          reference, which could not ship in the repo — so the deployed page
+          would have had an empty hero. This draws its own terrain instead. */}
+      <div className="absolute inset-0">
+        <VoxelField />
+      </div>
+      {/* Scrim: the display type is white and the field has bright faces. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
 
       <div className="relative flex h-full flex-col justify-between px-6 pt-6 pb-10 md:px-10 md:pt-8 md:pb-14">
         {/* Nav card — 64px rise with blur, matching the captured entrance. */}
