@@ -17,9 +17,13 @@ const log = logger("live");
  * restarting the session. Our tools are fixed at startup, so it doesn't bite.
  * See docs/DECISIONS.md.
  *
- * NOTE: unverified end to end. No GEMINI_API_KEY has been issued, so this has
- * never held a real session. Everything below is written against the Live API
- * contract but has not been observed working.
+ * Model choice: `gemini-2.5-flash-native-audio-latest` is the only model this
+ * project's key advertises `bidiGenerateContent` on, which is the method the
+ * Live API rides. `gemini-2.0-flash-live-001` also opens a session and is kept
+ * as a documented fallback. Both verified 2026-07-18.
+ *
+ * Still unverified: audio actually flowing both directions, tool calls
+ * round-tripping, and end-to-end latency. Opening a socket is not a demo.
  */
 
 export interface LiveCallbacks {
@@ -41,6 +45,8 @@ export interface LiveOptions {
   callbacks: LiveCallbacks;
 }
 
+const env = (name: string): string | undefined => process.env[name]?.trim() || undefined;
+
 /** Live API audio contract: 16kHz mono in, 24kHz mono out, both s16le. */
 export const INPUT_SAMPLE_RATE = 16_000;
 export const OUTPUT_SAMPLE_RATE = 24_000;
@@ -58,7 +64,7 @@ export class LiveSession {
   }
 
   async start(): Promise<void> {
-    const model = this.opts.model ?? "gemini-2.0-flash-live-001";
+    const model = this.opts.model ?? env("GEMINI_LIVE_MODEL") ?? "gemini-2.5-flash-native-audio-latest";
 
     this.session = await this.ai.live.connect({
       model,
