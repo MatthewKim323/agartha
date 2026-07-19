@@ -10,7 +10,10 @@ const WOOD_TOOLS = ["wooden_pickaxe", "wooden_axe", "wooden_sword", "wooden_shov
  */
 export const craft: Skill = {
   name: "craft",
-  description: "Craft an item (e.g. 'wooden_pickaxe','crafting_table','stick','chest'). Auto-makes planks/sticks from logs and places a table if needed.",
+  description:
+    "Craft ONE named item, e.g. { item: 'wooden_pickaxe' | 'crafting_table' | 'chest' | 'torch' }. " +
+    "Auto-makes planks and sticks from logs and places a table if needed. For a whole starter toolset " +
+    "in one go, use make_tools instead of calling this four times.",
   async run(ctx, args) {
     const item = String(args?.item ?? args?.name ?? "");
     if (!item) return "craft needs an item name";
@@ -32,7 +35,9 @@ export const craft: Skill = {
  */
 export const makeTools: Skill = {
   name: "make_tools",
-  description: "Craft a full set of wooden tools (pickaxe, axe, sword, shovel) from logs and place a crafting table.",
+  description:
+    "Craft a FULL SET of wooden tools (pickaxe, axe, sword, shovel) from logs and place a crafting " +
+    "table. USE THIS for 'make some tools', 'gear up'. For a single specific item, use craft.",
   async run(ctx) {
     return runWithTask(ctx, async () => {
       const hasLogs = ctx.control
