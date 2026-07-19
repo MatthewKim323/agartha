@@ -41,27 +41,34 @@ function DisplayWord({
   drift: MotionValue<number>;
 }) {
   return (
-    <span
-      className="block overflow-hidden pb-[0.06em]"
-      // Perspective on the clipping parent, so the rise below can tip in 3D
-      // without the mask itself tilting.
-      style={{ perspective: 700 }}
-    >
-      <motion.span
-        className="block origin-bottom"
-        style={{ x: drift }}
-        // The mask alone was a flat slide. Tipping the word forward and
-        // resolving a small blur as it lands gives it somewhere to arrive from
-        //, the difference between text appearing and text being placed.
-        initial={{ y: '110%', rotateX: -34, filter: 'blur(10px)', opacity: 0.001 }}
-        animate={{ y: '0%', rotateX: 0, filter: 'blur(0px)', opacity: 1 }}
-        transition={{ duration: DUR.slow, ease: EASE.expo, delay }}
+    // Drift lives OUTSIDE the clip. The mask exists to hide the vertical rise
+    // on entry, but it clips on every axis, so applying the scroll parallax to
+    // the same element sent the leading letter into the mask edge and sheared
+    // it off. Splitting them lets the whole masked block travel while the mask
+    // still only ever hides the rise.
+    <motion.span data-word className="block" style={{ x: drift }}>
+      <span
+        className="block overflow-hidden pb-[0.06em]"
+        // Perspective on the clipping parent, so the rise below can tip in 3D
+        // without the mask itself tilting.
+        style={{ perspective: 700 }}
       >
-        {children}
-      </motion.span>
-    </span>
+        <motion.span
+          className="block origin-bottom"
+          // The mask alone was a flat slide. Tipping the word forward and
+          // resolving a small blur as it lands gives it somewhere to arrive
+          // from: the difference between text appearing and text being placed.
+          initial={{ y: '110%', rotateX: -34, filter: 'blur(10px)', opacity: 0.001 }}
+          animate={{ y: '0%', rotateX: 0, filter: 'blur(0px)', opacity: 1 }}
+          transition={{ duration: DUR.slow, ease: EASE.expo, delay }}
+        >
+          {children}
+        </motion.span>
+      </span>
+    </motion.span>
   );
 }
+
 export default function Hero() {
   const { scrollY } = useScroll();
   // Cap distance / rate = the scroll position where the drift maxes out.
@@ -80,6 +87,9 @@ export default function Hero() {
           never empty while the video decodes, and playsInline stops iOS
           taking it fullscreen. muted is what makes autoplay legal at all. */}
       <video
+        ref={(el) => {
+          if (el) el.playbackRate = 0.5;
+        }}
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
         muted
@@ -119,6 +129,19 @@ export default function Hero() {
         <div className="pointer-events-none flex-1 select-none">
           <h1 className="flex h-full flex-col justify-center text-[clamp(3.25rem,13.34vw,192px)] leading-[0.8] font-medium tracking-[-0.07em] text-white uppercase">
             <DisplayWord delay={0.08} drift={driftRight}>Human</DisplayWord>
+
+            <motion.span
+              className="pointer-events-none my-[0.04em] flex justify-center"
+              initial={{ opacity: 0, scale: 0.82 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: DUR.slow, ease: EASE.expo, delay: 0.42 }}
+            >
+              <Logo
+                className="h-[0.34em] w-[0.34em] text-white/85"
+                title={null}
+              />
+            </motion.span>
+
             <span className="self-end text-right">
               <DisplayWord delay={0.2} drift={driftLeft}>Speed</DisplayWord>
             </span>

@@ -1,8 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#1e1e1f"/>
-  <!-- One isometric block, same 2:1 projection and three-tone flat shading as
-       the terrain on the page. Top face carries the accent. -->
-  <path d="M16 6 27 12 16 18 5 12Z" fill="#c8fa00"/>
-  <path d="M5 12 16 18v8L5 20Z" fill="#7d9c00"/>
-  <path d="M27 12 16 18v8l11-6Z" fill="#a3cc00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" fill="#1e1e1f"/>
+  <!-- Same mark as components/Logo.tsx, inlined here because a favicon cannot
+       import a component. If the logo paths change there, change them here too. -->
+  <path d="M60 7a13 13 0 0 1 6.5 1.75l35.5 20.5a13 13 0 0 1 6.5 11.25v41a13 13 0 0 1-6.5 11.25l-35.5 20.5a13 13 0 0 1-13 0l-35.5-20.5a13 13 0 0 1-6.5-11.25v-41a13 13 0 0 1 6.5-11.25l35.5-20.5A13 13 0 0 1 60 7z"
+        fill="none" stroke="#ffffff" stroke-width="12"/>
+  <path d="M35 44 L57 36 L57 50 L47 53.5 L47 76 L57 72.5 L57 86 L35 94 z" fill="#ffffff"/>
+  <path d="M85 76 L63 84 L63 70 L73 66.5 L73 44 L63 47.5 L63 34 L85 26 z" fill="#ffffff"/>
 </svg>

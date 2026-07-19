@@ -122,7 +122,31 @@ function path(
   }
 }
 
-// The agent. A lime cube with a dark visor so it reads as a body, not a block.
+// The agar mark, drawn small on the face of the agent block.
+//
+// Simplified from components/Logo.tsx: at this size the rounded hexagon and
+// the full interlock turn to mush, so it keeps the hexagon silhouette and the
+// two offset bars, which is what carries the recognition.
+function mark(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+  ctx.strokeStyle = 'rgba(20,24,8,0.9)';
+  ctx.lineWidth = Math.max(1, r * 0.26);
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (Math.PI / 3) * i - Math.PI / 2;
+    const px = cx + Math.cos(a) * r;
+    const py = cy + Math.sin(a) * r * 0.92;
+    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(20,24,8,0.9)';
+  const w = r * 0.24, h = r * 0.74;
+  ctx.fillRect(cx - r * 0.42, cy - h / 2, w, h);
+  ctx.fillRect(cx + r * 0.18, cy - h / 2, w, h);
+}
+
+// The agent. A lime cube carrying the agar mark so it reads as a body, and as
+// a specific body, rather than as another block.
 function agent(
   ctx: CanvasRenderingContext2D,
   gx: number,
@@ -136,8 +160,7 @@ function agent(
   ctx.save();
   ctx.translate(0, -bob);
   cube(ctx, gx, gy, gz, LIME, cx, cy);
-  ctx.fillStyle = 'rgba(20,24,8,0.85)';
-  ctx.fillRect(x - 9, y + TH + 4, 18, 5);
+  mark(ctx, x, y + TH + 7, TW * 0.42);
   ctx.restore();
 }
 

@@ -110,7 +110,7 @@ export default function About() {
             <RevealLines
               as="h2"
               className="text-[38px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[38px] xl:text-[44px]"
-              lines={['Agents make the', 'perfect Minecraft duo']}
+              lines={['The perfect', 'Minecraft companion']}
             />
             <RevealLines
               className="mt-8 max-w-[44ch] text-[17px] leading-[1.62] text-muted"
