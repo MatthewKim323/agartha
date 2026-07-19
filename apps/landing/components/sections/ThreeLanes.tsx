@@ -5,11 +5,11 @@ import {
   motion,
   AnimatePresence,
   useScroll,
-  useTransform,
   useMotionValueEvent,
 } from 'motion/react';
 import { DUR, EASE } from '@/lib/motion';
 import { RevealOnMount } from '@/components/RevealText';
+import VoxelSteps from '@/components/VoxelSteps';
 
 // Pinned step sequence.
 //
@@ -99,12 +99,13 @@ export default function ThreeLanes() {
   });
 
   const [active, setActive] = useState(0);
+  // Raw progress in a ref: the canvas reads it every frame, and routing it
+  // through state instead would re-render the whole section 60 times a second.
+  const progressRef = useRef(0);
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    progressRef.current = v;
     setActive(Math.min(STEPS.length - 1, Math.max(0, Math.floor(v * STEPS.length))));
   });
-
-  // The numeral ring turns one step's worth per step.
-  const ringRotate = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   return (
     <section
@@ -115,31 +116,12 @@ export default function ThreeLanes() {
     >
       <div className="sticky top-0 flex h-svh items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-16 px-6 md:grid-cols-[1fr_1.1fr] md:px-10">
-          {/* Numeral ring */}
-          <motion.div
-            className="relative hidden aspect-square w-full max-w-md md:block"
-            style={{ rotate: ringRotate }}
-          >
-            <div className="absolute inset-0 rounded-full border border-white/10" />
-            <div className="absolute inset-[18%] rounded-full border border-white/[0.06]" />
-            {STEPS.map((s, i) => {
-              const angle = (i / STEPS.length) * 360;
-              const isOn = i === active;
-              return (
-                <span
-                  key={s.n}
-                  className={`absolute top-1/2 left-1/2 font-mono text-[18px] transition-colors duration-[400ms] ${
-                    isOn ? 'text-accent' : 'text-white/20'
-                  }`}
-                  style={{
-                    transform: `rotate(${angle}deg) translateY(-11.5rem) rotate(${-angle}deg)`,
-                  }}
-                >
-                  {s.n}
-                </span>
-              );
-            })}
-          </motion.div>
+          {/* Voxel staircase. A ring implied a cycle; this path is a descent,
+              each stage faster than the last, so a staircase is the honest
+              shape — and blocks are what the product actually manipulates. */}
+          <div className="relative hidden aspect-square w-full md:block">
+            <VoxelSteps count={STEPS.length} active={active} progress={progressRef} />
+          </div>
 
           {/* Stacked labels, crossfading in place. */}
           <div className="relative min-h-[19rem]">

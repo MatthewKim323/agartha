@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import RevealText, { RevealLines } from '@/components/RevealText';
+import CountUp from '@/components/CountUp';
 
 // Every figure traces to docs/MEASUREMENTS.md. Nothing here is a target or an
 // estimate — the file marks those separately, and none of them are on this page.
@@ -31,6 +32,25 @@ const DISPATCH = [
   { label: 'chat', ms: 3, note: 'in-game text' },
   { label: 'set_goal', ms: 1, note: 'returns before the work starts' },
 ] as const;
+
+// Decade markers on the log axis: 1ms, 10ms, 100ms, 1s. Without a ruler the
+// bars only say "shorter"; with one they say how much shorter, and the log
+// scale stops being something the reader has to take on trust.
+const DECADES = [1, 10, 100, 1000];
+
+function Ticks() {
+  return (
+    <span aria-hidden className="absolute inset-0">
+      {DECADES.map((d) => (
+        <span
+          key={d}
+          className="absolute inset-y-0 w-px bg-ink/[0.16]"
+          style={{ left: `${logScale(d) * 100}%` }}
+        />
+      ))}
+    </span>
+  );
+}
 
 function Bar({
   before,
@@ -82,6 +102,7 @@ function Bar({
             before
           </span>
           <span className="relative h-6 flex-1 overflow-hidden rounded-[2px] bg-ink/[0.05]">
+            <Ticks />
             <span
               data-fill
               className="absolute inset-y-0 left-0 block origin-left rounded-[2px] bg-ink/25"
@@ -97,6 +118,7 @@ function Bar({
             agartha
           </span>
           <span className="relative h-6 flex-1 overflow-hidden rounded-[2px] bg-ink/[0.05]">
+            <Ticks />
             <span
               data-fill
               className="absolute inset-y-0 left-0 block origin-left rounded-[2px] bg-accent"
@@ -160,8 +182,8 @@ export default function Stats() {
                     {d.label}
                   </dt>
                   <dd className="flex flex-1 items-baseline gap-3">
-                    <span className="text-[24px] font-medium text-ink tabular-nums">
-                      {d.ms}
+                    <span className="text-[24px] font-medium text-ink">
+                      <CountUp value={d.ms} />
                       <span className="text-[14px] text-muted">ms</span>
                     </span>
                     <span className="font-mono text-[11px] text-faint">

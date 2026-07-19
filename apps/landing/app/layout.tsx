@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import SmoothScroll from '@/components/SmoothScroll';
+import Grain from '@/components/Grain';
 import './globals.css';
 
 // Canela, carried over from Quad for the footer wordmark. Licensed font — the
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-paper text-ink font-sans antialiased">
         <SmoothScroll />
+        <Grain />
         {children}
       </body>
     </html>

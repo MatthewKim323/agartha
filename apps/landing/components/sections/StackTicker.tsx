@@ -28,15 +28,15 @@ const DURATION_S = 80;
 type Entry = { name: string; path?: string; height: number };
 
 const STACK: Entry[] = [
-  { name: 'Google Gemini', path: siGooglegemini.path, height: 22 },
-  { name: 'Mineflayer', height: 20 },
-  { name: 'Model Context Protocol', height: 20 },
-  { name: 'Discord', path: siDiscord.path, height: 20 },
-  { name: 'Bun', path: siBun.path, height: 22 },
-  { name: 'TypeScript', path: siTypescript.path, height: 19 },
-  { name: 'Node.js', path: siNodedotjs.path, height: 22 },
-  { name: 'PostgreSQL', path: siPostgresql.path, height: 21 },
-  { name: 'GitHub', path: siGithub.path, height: 20 },
+  { name: 'Google Gemini', path: siGooglegemini.path, height: 30 },
+  { name: 'Mineflayer', height: 28 },
+  { name: 'Model Context Protocol', height: 28 },
+  { name: 'Discord', path: siDiscord.path, height: 28 },
+  { name: 'Bun', path: siBun.path, height: 30 },
+  { name: 'TypeScript', path: siTypescript.path, height: 27 },
+  { name: 'Node.js', path: siNodedotjs.path, height: 30 },
+  { name: 'PostgreSQL', path: siPostgresql.path, height: 29 },
+  { name: 'GitHub', path: siGithub.path, height: 28 },
 ];
 
 // Stand-in glyph for dependencies with no official mark: a cube for Mineflayer
@@ -99,15 +99,19 @@ export default function StackTicker() {
   const reduced = useReducedMotion();
   // Two identical tracks: the second is entering as the first leaves, and the
   // -50% translate lands exactly on the seam.
+  // Nine marks do not span a wide viewport, so a single pass left a visible
+  // hole before the loop point. Each track repeats the list until it is
+  // comfortably wider than any screen; the pair then seams invisibly.
+  const REPEATS = 3;
   const track = (key: string, hidden: boolean) => (
     <ul
       key={key}
       aria-hidden={hidden}
-      className="flex shrink-0 items-center gap-16 pr-16"
+      className="flex shrink-0 items-center gap-24 pr-24"
     >
-      {STACK.map((e) => (
-        <Mark key={`${key}-${e.name}`} entry={e} />
-      ))}
+      {Array.from({ length: REPEATS }).flatMap((_, r) =>
+        STACK.map((e) => <Mark key={`${key}-${r}-${e.name}`} entry={e} />),
+      )}
     </ul>
   );
 

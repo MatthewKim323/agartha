@@ -1,6 +1,5 @@
 'use client';
 
-import GridLines from '@/components/GridLines';
 import RevealText, { RevealLines } from '@/components/RevealText';
 
 // Copy is drawn from the repo's own docs. The latency figures come from
@@ -12,28 +11,46 @@ const COLUMNS = [
   {
     heading: 'What It Is',
     lines: [
-      'A voice companion for Minecraft. It sits in your Discord',
-      'call, listens, talks back, and drives a Mineflayer bot in',
-      'your world. One persistent session holds the conversation',
-      'and the controls, so speaking and acting are one act.',
+      'A voice companion for Minecraft.',
+      'It sits in your Discord call, listens,',
+      'talks back, and drives a Mineflayer',
+      'bot in your world. One session holds',
+      'both, so speaking and acting are',
+      'the same act.',
     ],
   },
   {
     heading: 'Why It Matters',
     lines: [
-      'The version before this spawned a fresh process every turn',
-      'and took six to thirteen seconds to say a word. Removing',
-      'that spawn is the entire rewrite. Once the model emits a',
-      'call, the bot moves in about three milliseconds.',
+      'The version before this spawned a',
+      'fresh process every turn and took six',
+      'to thirteen seconds to say a word.',
+      'Removing that spawn is the rewrite.',
+      'Once the model emits a call, the bot',
+      'moves in about three milliseconds.',
     ],
   },
 ] as const;
 
 export default function About() {
   return (
-    <section className="relative bg-paper py-24 md:py-32">
-      <GridLines />
-
+    <section className="relative overflow-hidden bg-paper py-24 md:py-32">
+      {/* A pixel field instead of ruled lines: same job — signalling that the
+          page is built rather than drawn — but in the product's own idiom, and
+          quiet enough to sit behind body copy. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgba(23,23,23,0.13) 1px, transparent 1px)',
+          backgroundSize: '10px 10px',
+          WebkitMaskImage:
+            'radial-gradient(120% 90% at 50% 45%, black 20%, transparent 78%)',
+          maskImage:
+            'radial-gradient(120% 90% at 50% 45%, black 20%, transparent 78%)',
+        }}
+      />
       <div className="relative mx-auto grid max-w-[80%] grid-cols-1 gap-12 md:grid-cols-[0.8fr_1.1fr_1.1fr] md:gap-16">
         <RevealText
           as="h2"

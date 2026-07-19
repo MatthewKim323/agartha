@@ -3,9 +3,9 @@ import About from '@/components/sections/About';
 import SkillSlider from '@/components/sections/SkillSlider';
 import ThreeLanes from '@/components/sections/ThreeLanes';
 import Stats from '@/components/sections/Stats';
+import LatencyFlow from '@/components/sections/LatencyFlow';
 import StackTicker from '@/components/sections/StackTicker';
 import ReflexGrid from '@/components/sections/ReflexGrid';
-import LogoMark from '@/components/sections/LogoMark';
 import Footer from '@/components/sections/Footer';
 
 export default function Page() {
@@ -15,10 +15,10 @@ export default function Page() {
       <About />
       <SkillSlider />
       <ThreeLanes />
+      <LatencyFlow />
       <Stats />
       <StackTicker />
       <ReflexGrid />
-      <LogoMark />
       <Footer />
     </main>
   );
