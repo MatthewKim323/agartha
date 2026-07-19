@@ -127,8 +127,8 @@ export default function Hero() {
         {/* Split display type. Fixed 192px as captured, stepped down at narrow
             widths where 192px would simply not fit. */}
         <div className="pointer-events-none flex-1 select-none">
-          <h1 className="flex h-full flex-col justify-center text-[clamp(3.25rem,13.34vw,192px)] leading-[0.8] font-medium tracking-[-0.07em] text-white uppercase">
-            <DisplayWord delay={0.08} drift={driftRight}>Human</DisplayWord>
+          <h1 className="flex h-full flex-col justify-center text-[clamp(3.25rem,13.34vw,192px)] leading-[0.8] font-medium tracking-[-0.07em] text-white lowercase">
+            <DisplayWord delay={0.08} drift={driftRight}>Meet</DisplayWord>
 
             <motion.span
               className="pointer-events-none my-[0.04em] flex justify-center"
@@ -143,7 +143,7 @@ export default function Hero() {
             </motion.span>
 
             <span className="self-end text-right">
-              <DisplayWord delay={0.2} drift={driftLeft}>Speed</DisplayWord>
+              <DisplayWord delay={0.2} drift={driftLeft}>agar</DisplayWord>
             </span>
           </h1>
         </div>
