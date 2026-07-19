@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 //
 // Two details do the work. It writes through `textContent` rather than React
 // state, so a 1.4s roll costs zero re-renders. And it renders a hidden copy of
-// the final string to reserve width — otherwise the box resizes as digits
+// the final string to reserve width, otherwise the box resizes as digits
 // change and everything beside it twitches for the length of the animation.
 export default function CountUp({
   value,

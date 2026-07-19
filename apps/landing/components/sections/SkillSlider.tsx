@@ -16,7 +16,7 @@ import SkillDiagram, { type SkillKind } from '@/components/SkillDiagram';
 
 // Full-bleed image slider.
 //
-// Timing note — this is the third attempt at the progress rail and the first
+// Timing note, this is the third attempt at the progress rail and the first
 // correct one. Earlier versions ran a setInterval for the slide advance and a
 // separate CSS transition for the fill, so the two drifted apart; worse, the
 // paused branch animated the fill *to 100%* instead of holding it, which meant
@@ -29,7 +29,7 @@ import SkillDiagram, { type SkillKind } from '@/components/SkillDiagram';
 //
 // Each slide draws its own seeded voxel terrain rather than carrying a bitmap.
 // The previous version used the design reference's product renders, which could
-// not ship in the repo — so the deployed page would have shown six empty
+// not ship in the repo, so the deployed page would have shown six empty
 // panels. Generated art has no such problem and is on-subject besides.
 //
 // Each skill maps to a real file in apps/mc-bot/src/skills/.

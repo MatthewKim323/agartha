@@ -12,7 +12,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 //
 // Velocity shaping: hesitate, snap, settle.
 //
-// cubic-bezier(.79, .14, .15, .86) — lifted from Browserbase's heading reveal.
+// cubic-bezier(.79, .14, .15, .86), lifted from Browserbase's heading reveal.
 // It holds still at the start, accelerates hard through the middle, then takes
 // a long time to arrive. Standard expo.out is the opposite shape (immediate
 // then decaying), which is what made the first pass feel weightless.
@@ -171,8 +171,8 @@ export function RevealLines({
 
 // Mount-driven variant of the same masked rise.
 //
-// The scroll-triggered version above is wrong for content that re-mounts —
-// slider slides, pinned steps — because ScrollTrigger fires once and the
+// The scroll-triggered version above is wrong for content that re-mounts,
+// slider slides, pinned steps, because ScrollTrigger fires once and the
 // element then swaps underneath it. This runs on mount instead, so each new
 // slide or step gets the same clip-rise the hero uses, on the same curve.
 export function RevealOnMount({

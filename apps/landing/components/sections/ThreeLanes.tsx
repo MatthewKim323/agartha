@@ -17,7 +17,7 @@ import VoxelSteps from '@/components/VoxelSteps';
 // the three this previously had; labels 460x32 stacked at a single position and
 // crossfaded in place rather than moved; right column starting at 46% of the
 // viewport. The first build invented a three-lane layout because the capture's
-// pinned internals came back empty — the keyframe pass filled that in.
+// pinned internals came back empty, the keyframe pass filled that in.
 //
 // Content is the real request path, and every timing is from
 // docs/MEASUREMENTS.md. The steps that have not been separately measured say so
@@ -119,7 +119,7 @@ export default function ThreeLanes() {
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-16 px-6 md:grid-cols-[1fr_1.1fr] md:px-10">
           {/* Voxel staircase. A ring implied a cycle; this path is a descent,
               each stage faster than the last, so a staircase is the honest
-              shape — and blocks are what the product actually manipulates. */}
+              shape, and blocks are what the product actually manipulates. */}
           <div className="relative hidden aspect-square w-full md:block">
             <VoxelSteps count={STEPS.length} active={active} progress={progressRef} />
           </div>

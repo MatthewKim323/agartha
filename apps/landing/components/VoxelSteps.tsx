@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 // Isometric voxel staircase for the pinned step sequence.
 //
 // This replaces a rotating numeral ring. A ring implies a cycle, and the
-// request path is not a cycle — it is a descent from "you speak" to "it reports
+// request path is not a cycle, it is a descent from "you speak" to "it reports
 // back", each stage faster than the last. A staircase says that; a wheel does
 // not. It is also blocks, which is what the product actually manipulates.
 //
@@ -108,7 +108,7 @@ export default function VoxelSteps({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      // Fit, accounting for everything that actually gets drawn — not just the
+      // Fit, accounting for everything that actually gets drawn, not just the
       // staircase. The rolling block hops above its step and the active step
       // rises, so a fit computed from the stairs alone clipped the art on every
       // edge at the end of the track.
@@ -176,7 +176,7 @@ export default function VoxelSteps({
       // A block rolls down the staircase, its position driven by scroll.
       //
       // `eased` lags the raw scroll value, which is what gives the block weight
-      // — it keeps travelling for a moment after the wheel stops instead of
+      //, it keeps travelling for a moment after the wheel stops instead of
       // pinning to the cursor. Between steps it follows a parabolic hop and
       // tumbles a quarter turn; on landing it squashes and recovers. That
       // combination is what reads as rolling rather than sliding.
@@ -204,7 +204,7 @@ export default function VoxelSteps({
       const squash = 1 + (1 - land) * -0.2 + land * 0.1;
 
       // No rotation. An isometric cube only holds its read at a fixed
-      // orientation — spinning it in 2D collapses the projection and it stops
+      // orientation, spinning it in 2D collapses the projection and it stops
       // looking like a block at all. The tumble is carried by the arc and the
       // landing squash instead, which is what the eye actually reads as rolling.
       ctx.save();

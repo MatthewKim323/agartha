@@ -1,14 +1,14 @@
 'use client';
 
 // The page's closer. This replaced both the old footer and the CTA block above
-// it — that block restated what the rest of the page already proves, and a
+// it, that block restated what the rest of the page already proves, and a
 // launch page for a repo does not need two calls to action pointing at the same
 // repo. Now: links, then the wordmark, then out.
 //
 // The wordmark treatment is carried from Quad: Canela at a viewport-scaled
 // size, tight leading, and a second absolutely-positioned copy painted with a
 // halftone gradient through background-clip:text, masked so the dots only bleed
-// into the lower half. Deliberately unanimated — it is the last thing on the
+// into the lower half. Deliberately unanimated, it is the last thing on the
 // page and should feel set, not arriving.
 
 const LINKS = {
@@ -28,7 +28,7 @@ const LINKS = {
     },
   ],
   Lineage: [
-    { label: 'itto — the body', href: 'https://github.com/silaswu4/itto' },
+    { label: 'itto, the body', href: 'https://github.com/silaswu4/itto' },
     {
       label: 'Skill library',
       href: 'https://github.com/MatthewKim323/agartha/tree/main/apps/mc-bot/src/skills',

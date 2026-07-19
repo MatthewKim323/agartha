@@ -16,7 +16,7 @@
 
   /* Captured families: Geist (296 uses) for sans, Space Mono (70) for mono.
      The first build guessed Inter + IBM Plex Mono, which sit noticeably
-     differently — Geist is tighter and more geometric at display sizes. */
+     differently, Geist is tighter and more geometric at display sizes. */
   --font-sans: Geist, "Geist Placeholder", sans-serif;
   --font-mono: "Space Mono", monospace;
   --font-canela: var(--font-canela), Canela, 'Times New Roman', serif;
@@ -29,7 +29,7 @@
   --text-h4: 24px;         /* x65 */
   --text-body: 16px;       /* x36 */
   --text-body-sm: 15px;    /* x31 */
-  --text-label: 12px;      /* x941 — the mono labels carry the page */
+  --text-label: 12px;      /* x941, the mono labels carry the page */
   --text-label-sm: 11px;   /* x19 */
 
   /* Line heights as captured, expressed as ratios against their size.

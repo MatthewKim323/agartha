@@ -7,7 +7,7 @@ import VoxelField from '@/components/VoxelField';
 // Rebuilt against the capture rather than the screenshot.
 //
 // What changed from the first pass, and why:
-//   · display type is 192px fixed (tokens/typography.json, x15), not 15vw —
+//   · display type is 192px fixed (tokens/typography.json, x15), not 15vw,
 //     the viewport-relative version drifted badly at wide widths
 //   · entrance rises 64px from opacity 0.001, not 24px from 0
 //     (motion/appear-effects.json dominant initial state)
@@ -27,12 +27,12 @@ const META = [
 // Scroll parallax on the display words, recovered via motion-probe against the
 // live site. The two words drift apart horizontally as the page scrolls: the
 // upper moves right at +0.2225px per px of scroll, the lower left at the same
-// rate, both capping at ±200px — reached exactly one viewport height in.
+// rate, both capping at ±200px, reached exactly one viewport height in.
 // The first build had none of this, and it is the hero's defining scroll move.
 const PARALLAX_RATE = 0.2225;
 const PARALLAX_CAP = 200;
 
-// Clip-masked word. translateY(110%) is the captured value — the extra 10%
+// Clip-masked word. translateY(110%) is the captured value, the extra 10%
 // keeps descenders hidden behind the mask edge.
 function DisplayWord({
   children,
@@ -55,7 +55,7 @@ function DisplayWord({
         style={{ x: drift }}
         // The mask alone was a flat slide. Tipping the word forward and
         // resolving a small blur as it lands gives it somewhere to arrive from
-        // — the difference between text appearing and text being placed.
+        //, the difference between text appearing and text being placed.
         initial={{ y: '110%', rotateX: -34, filter: 'blur(10px)', opacity: 0.001 }}
         animate={{ y: '0%', rotateX: 0, filter: 'blur(0px)', opacity: 1 }}
         transition={{ duration: DUR.slow, ease: EASE.expo, delay }}
@@ -80,7 +80,7 @@ export default function Hero() {
   return (
     <section className="relative h-svh w-full overflow-hidden bg-surface">
       {/* Generated backdrop. Previously borrowed footage from the design
-          reference, which could not ship in the repo — so the deployed page
+          reference, which could not ship in the repo, so the deployed page
           would have had an empty hero. This draws its own terrain instead. */}
       <div className="absolute inset-0">
         <VoxelField />
@@ -89,7 +89,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
 
       <div className="relative flex h-full flex-col justify-between px-6 pt-6 pb-10 md:px-10 md:pt-8 md:pb-14">
-        {/* Nav card — 64px rise with blur, matching the captured entrance. */}
+        {/* Nav card: 64px rise with blur, matching the captured entrance. */}
         <motion.header
           className="w-fit rounded-xl bg-surface/85 px-5 py-4 backdrop-blur-sm"
           initial={{ opacity: 0.001, y: -20, filter: 'blur(2px)' }}

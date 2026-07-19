@@ -13,15 +13,15 @@ import {
 
 // "Built on" marquee. Every entry is a real dependency you can find in the
 // lockfile, and every mark is the actual brand SVG rather than the name set in
-// type — that was the previous version and it read as a list, not a rail.
+// type, that was the previous version and it read as a list, not a rail.
 //
 // Treatment carried from Modal's ticker: inline SVG at `currentColor` so one
 // token retints the whole row, per-mark optical sizing rather than a uniform
 // scale, edge-fade mask, and a deliberately slow loop. 80s is ambient; anything
 // faster starts competing with the page for attention.
 //
-// Marks come from simple-icons (CC0). Two dependencies have no brand mark —
-// Mineflayer and the Model Context Protocol — so they carry a drawn glyph plus
+// Marks come from simple-icons (CC0). Two dependencies have no brand mark,
+// Mineflayer and the Model Context Protocol, so they carry a drawn glyph plus
 // their name rather than a fabricated logo.
 const DURATION_S = 80;
 

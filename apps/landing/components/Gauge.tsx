@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 // Radial dial. The arc and the numeral run on one tween, so the number can
-// never disagree with the sweep — they read the same tweened object.
+// never disagree with the sweep, they read the same tweened object.
 //
 // Ticks are drawn at every step rather than continuously, which makes the dial
 // read as an instrument with a resolution instead of a decorative ring.
@@ -81,7 +81,7 @@ export default function Gauge({
             // Rounded before it reaches the DOM. Math.cos/Math.sin are not
             // guaranteed bit-identical between the server's engine and the
             // browser's, so raw floats can serialise as `56` on one side and
-            // `56.00000000000001` on the other — which React reports as a
+            // `56.00000000000001` on the other, which React reports as a
             // hydration mismatch on an attribute it refuses to patch.
             const r3 = (n: number) => +n.toFixed(3);
             const x1 = r3(56 + Math.cos(a) * (R + 8));

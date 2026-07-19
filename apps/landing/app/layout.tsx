@@ -4,7 +4,7 @@ import SmoothScroll from '@/components/SmoothScroll';
 import Grain from '@/components/Grain';
 import './globals.css';
 
-// Canela, carried over from Quad for the footer wordmark. Licensed font — the
+// Canela, carried over from Quad for the footer wordmark. Licensed font, the
 // .otf files are gitignored rather than committed, same as the placeholder media.
 const canela = localFont({
   src: [
@@ -16,7 +16,7 @@ const canela = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'agartha — a Minecraft companion that answers at human speed',
+  title: 'agartha, a Minecraft companion that answers at human speed',
   description:
     'Voice-driven Minecraft companion. Speaks in about the time a person would, acts while it is still talking, and remembers you between sessions.',
 };

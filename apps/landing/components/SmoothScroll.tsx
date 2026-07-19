@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 
 // The reference runs Lenis, and its scroll feel is a real part of why the page
-// reads as polished — entrance timing is tuned against this easing, so dropping
+// reads as polished, entrance timing is tuned against this easing, so dropping
 // it makes the rest of the motion land differently.
 export default function SmoothScroll() {
   useEffect(() => {

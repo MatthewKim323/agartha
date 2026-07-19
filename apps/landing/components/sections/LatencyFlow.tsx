@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 // Request path as a flow rail, drawn to scale.
 //
 // The conceit: every leg's tween duration is the real measured latency, scaled
-// by one constant. So the packet does not just travel the diagram — it spends
+// by one constant. So the packet does not just travel the diagram, it spends
 // proportionally as long on each leg as the system does. The 345ms think is a
 // visible pause; the 3ms dispatch is a snap you almost miss. That contrast is
 // the product's entire argument, and a diagram with arbitrary timings would
@@ -193,7 +193,7 @@ export default function LatencyFlow() {
               );
             })}
 
-            {/* Stage nodes — squares, because everything here is blocks */}
+            {/* Stage nodes: squares, because everything here is blocks */}
             {STAGES.map((s) => (
               <g key={s.label}>
                 <rect

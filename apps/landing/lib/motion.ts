@@ -33,8 +33,8 @@ export const DUR = {
 
 // Distances lifted from appear-effects.json initial states.
 export const DIST = {
-  far: 64, // x18 (+x11 with blur) — the dominant entrance
-  near: 24, // x5 — used on smaller//secondary elements
+  far: 64, // x18 (+x11 with blur), the dominant entrance
+  near: 24, // x5, used on smaller//secondary elements
 } as const;
 
 export const STAGGER = 0.08;
@@ -45,7 +45,7 @@ export const baseTransition: Transition = {
 };
 
 // The page's primary entrance: 64px rise from near-zero opacity.
-// opacity starts at 0.001 rather than 0 exactly as captured — Framer does this
+// opacity starts at 0.001 rather than 0 exactly as captured, Framer does this
 // so the compositor keeps the layer promoted instead of dropping and re-raising
 // it, which is what stops the first frame from flashing.
 export const fadeUp: Variants = {
@@ -65,7 +65,7 @@ export const fadeUpBlur: Variants = {
   },
 };
 
-// Shorter rise for secondary content — cards, list items, stat tiles.
+// Shorter rise for secondary content, cards, list items, stat tiles.
 export const riseIn: Variants = {
   hidden: { opacity: 0, y: DIST.near },
   visible: {
@@ -81,7 +81,7 @@ export const stagger: Variants = {
 };
 
 // Masked line reveal for display type. translateY(110%) is exactly what the
-// capture recorded (x12) — the extra 10% keeps descenders hidden behind the clip.
+// capture recorded (x12), the extra 10% keeps descenders hidden behind the clip.
 export const lineReveal: Variants = {
   hidden: { y: '110%' },
   visible: {

@@ -10,7 +10,7 @@ import { motion, useMotionValue, useSpring, useReducedMotion } from 'motion/reac
 //   verticals    x = 146.6 / 1298.7  (10% / 90%), spanning y 184.6 → 862.3
 //   horizontals  y = 314.9 / 732.0,  spanning x -213 → 1658 (bleeds off-screen)
 //   dots         7px, rgba(0,0,0,0.3), centred on the four intersections
-//   all rules    1px — captured at rgba(0,0,0,0.1), raised to 0.16 here
+//   all rules    1px, captured at rgba(0,0,0,0.1), raised to 0.16 here
 //                 because at 0.1 the rules were effectively invisible on our
 //                 paper ground. This is a deliberate divergence from measured.
 //
@@ -48,11 +48,11 @@ export default function GridLines({ className = '' }: { className?: string }) {
       style={{ x: reduced ? 0 : drift }}
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
     >
-      {/* Verticals — full height of the section, so they overshoot the box. */}
+      {/* Verticals: full height of the section, so they overshoot the box. */}
       <div className={`${RULE} top-0 bottom-0 left-[10%] w-px`} />
       <div className={`${RULE} top-0 bottom-0 left-[90%] w-px`} />
 
-      {/* Horizontals — inset by the overshoot, and run past the viewport. */}
+      {/* Horizontals: inset by the overshoot, and run past the viewport. */}
       <div
         className={`${RULE} left-1/2 h-px w-[160vw] -translate-x-1/2`}
         style={{ top: OVERSHOOT }}

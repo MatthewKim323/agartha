@@ -5,7 +5,7 @@
 // cells get small and hard enough to read as pixel dither, which is the right
 // one for a product that lives in a block game.
 //
-// No client directive and no hooks — it is a static element, so it renders on
+// No client directive and no hooks, it is a static element, so it renders on
 // the server and costs nothing after paint.
 const NOISE = `data:image/svg+xml;utf8,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160">

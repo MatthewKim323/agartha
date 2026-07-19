@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 // This replaces the borrowed placeholder footage. That video was the reference
 // template's, which meant it could not ship in the repo and the deployed page
 // would have rendered with an empty hero. Generating the art removes the
-// dependency entirely and it is actually on-subject — the product lives in a
+// dependency entirely and it is actually on-subject, the product lives in a
 // block game, so blocks are the honest visual.
 //
 // Canvas 2D rather than SVG: a few hundred cubes with per-face shading is more
@@ -18,7 +18,7 @@ import { useEffect, useRef } from 'react';
 // no "why does it look different now".
 
 const TILE_W = 56; // half-width of a cube's top face
-const TILE_H = 28; // half-height — 2:1 gives the standard isometric angle
+const TILE_H = 28; // half-height. 2:1 gives the standard isometric angle
 const LIFT = 30; // vertical pixels per height step
 
 // Cheap deterministic value noise. Two octaves is enough for a readable
@@ -98,7 +98,7 @@ export default function VoxelField({
       // Painter's algorithm: back to front so nearer cubes overlap farther ones.
       for (let gy = -rows; gy < rows; gy++) {
         for (let gx = -cols; gx < cols; gx++) {
-          // Slow drift through the noise field rather than moving the camera —
+          // Slow drift through the noise field rather than moving the camera,
           // the terrain evolves in place, which reads as ambient not scrolling.
           const hgt = height(gx + t * 0.06, gy + t * 0.02, seed);
           const lvl = Math.round(hgt);

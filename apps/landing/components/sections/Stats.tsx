@@ -7,7 +7,7 @@ import RevealText, { RevealLines } from '@/components/RevealText';
 import CountUp from '@/components/CountUp';
 
 // Every figure traces to docs/MEASUREMENTS.md. Nothing here is a target or an
-// estimate — the file marks those separately, and none of them are on this page.
+// estimate, the file marks those separately, and none of them are on this page.
 //
 // Updated after Matthew landed tool-dispatch and in-world verification: the
 // dispatch numbers and the chop-tree proof below did not exist in the first
@@ -79,7 +79,7 @@ function Bar({
         {
           scaleX: 1,
           duration: 1.1,
-          // Slow entry, hard acceleration, long settle — the bars should feel
+          // Slow entry, hard acceleration, long settle, the bars should feel
           // driven rather than eased out.
           ease: 'power3.inOut',
           stagger: 0.12,
@@ -195,7 +195,7 @@ export default function Stats() {
             </dl>
           </div>
 
-          {/* Terminal proof — this is the receipt, quoted from MEASUREMENTS.md */}
+          {/* Terminal proof: this is the receipt, quoted from MEASUREMENTS.md */}
           <div className="overflow-hidden rounded-2xl bg-surface p-8">
             <p className="font-mono text-[12px] tracking-widest text-white/40 uppercase">
               Verified in-world

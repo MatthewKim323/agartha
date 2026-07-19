@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
 // sections read as the same treatment twice and neither said anything about the
 // skill it sat behind. These scenes each depict their own action instead.
 //
-// Everything is built from abstract blocks — a trunk is a stack, a mob is a
+// Everything is built from abstract blocks, a trunk is a stack, a mob is a
 // cube with eyes, a chest is a plate with a band. Nothing here copies game art;
 // the aim is the least detail that still reads as the concept.
 
@@ -22,7 +22,7 @@ export type SkillKind =
 
 // Every scene shares one cycle length with a hold at the end. Instructional
 // animation research is consistent that brief rests are what let a viewer
-// segment a sequence — without one, the loop reads as continuous churn.
+// segment a sequence, without one, the loop reads as continuous churn.
 const CYCLE = 7;
 const HOLD = 1.1;
 
@@ -100,7 +100,7 @@ function ground(
     for (let gx = 0; gx < w; gx++) cube(ctx, gx, gy, 0, pal, cx, cy);
 }
 
-// Dotted path along a grid line — the standard isometric device for "this
+// Dotted path along a grid line, the standard isometric device for "this
 // thing travelled".
 function path(
   ctx: CanvasRenderingContext2D,
@@ -173,7 +173,7 @@ function particles(
 // ---- Depth sorting ---------------------------------------------------------
 //
 // Scenes were previously drawn in hand-written order, which is fine on a single
-// plane and wrong the moment anything descends below it — the mine shaft was
+// plane and wrong the moment anything descends below it, the mine shaft was
 // painted before the ground that should sit behind it, so it vanished.
 //
 // For equal-size axis-aligned unit cubes, sorting ascending by (gx + gy + gz)
@@ -202,7 +202,7 @@ function makeQueue() {
 // cycle into stages so only ONE thing moves at a time.
 //
 // That last constraint is the important one. Viewers reason through a causal
-// sequence one step at a time, so overlapping motion does not read as rich —
+// sequence one step at a time, so overlapping motion does not read as rich,
 // it reads as noise, and the eye cannot tell which movement caused which.
 const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -337,7 +337,7 @@ const SCENES: Record<
     // Cutaway section, not a plan view.
     //
     // Looking down into a shaft from an isometric camera hides everything in
-    // it — the first attempt put the agent at the bottom of a hole where it
+    // it, the first attempt put the agent at the bottom of a hole where it
     // rendered as a speck. Technical illustration solves this by cutting the
     // mass away on the near side so the descent is visible in section, which
     // is what this does: a back wall of earth, and the staircase stepping down
@@ -489,7 +489,7 @@ const SCENES: Record<
     ground(ctx, 3, 3, cx, cy, STONE);
 
     // Ingredients drop into four cells in sequence, each on its own eased
-    // arc — not all nine at once, and not linearly.
+    // arc, not all nine at once, and not linearly.
     const CELLS: Array<[number, number]> = [[0, 0], [2, 0], [0, 2], [2, 2]];
     CELLS.forEach(([gx, gy], i) => {
       const p = beat(t, 0.25 + i * 0.42, 0.55, easeOutBack);
@@ -564,7 +564,7 @@ export default function SkillDiagram({
       ctx.restore();
     };
 
-    // Reduced motion gets the FINAL state, not t=0 — at zero most of these
+    // Reduced motion gets the FINAL state, not t=0, at zero most of these
     // scenes are empty (an uncut tree, a bare crafting grid), which tells the
     // reader nothing about the skill.
     if (reduced) {

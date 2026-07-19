@@ -6,7 +6,7 @@ import Gauge from '@/components/Gauge';
 
 // Replaces the old lineage section.
 //
-// That one was a prose block about two predecessor repos — true, but it asked
+// That one was a prose block about two predecessor repos, true, but it asked
 // the reader to care about project history before they cared about the project.
 // This shows the single claim the whole architecture rests on: the reflex loop
 // samples the world 15 times a second with no model in the path, while the
