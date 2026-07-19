@@ -8,6 +8,8 @@
 // Everything is currentColor so the mark takes the colour of whatever it sits
 // in, which is what lets one component serve both the dark nav card and the
 // light footer without a second asset.
+import { MARK_HEX, MARK_LEFT, MARK_RIGHT, MARK_STROKE } from '@/lib/mark';
+
 export default function Logo({
   className = '',
   title = 'agar',
@@ -25,37 +27,11 @@ export default function Logo({
       aria-label={title ?? undefined}
       aria-hidden={title ? undefined : true}
     >
-      {/* Rounded hexagon shell, drawn as a stroke so it stays hollow. */}
-      <path
-        d="M60 7
-           a13 13 0 0 1 6.5 1.75
-           l35.5 20.5
-           a13 13 0 0 1 6.5 11.25
-           v41
-           a13 13 0 0 1 -6.5 11.25
-           l-35.5 20.5
-           a13 13 0 0 1 -13 0
-           l-35.5 -20.5
-           a13 13 0 0 1 -6.5 -11.25
-           v-41
-           a13 13 0 0 1 6.5 -11.25
-           l35.5 -20.5
-           A13 13 0 0 1 60 7 z"
-        stroke="currentColor"
-        strokeWidth="12"
-      />
-
-      {/* Two interlocking panels. Each has a slanted top and bottom edge so the
-          pair reads as depth rather than as flat brackets, and the offset
-          between them is what makes them lock instead of mirror. */}
-      <path
-        d="M35 44 L57 36 L57 50 L47 53.5 L47 76 L57 72.5 L57 86 L35 94 z"
-        fill="currentColor"
-      />
-      <path
-        d="M85 76 L63 84 L63 70 L73 66.5 L73 44 L63 47.5 L63 34 L85 26 z"
-        fill="currentColor"
-      />
+      {/* Shell and interlock come from lib/mark.ts so this and the canvas
+          diagrams cannot drift apart. */}
+      <path d={MARK_HEX} stroke="currentColor" strokeWidth={MARK_STROKE} />
+      <path d={MARK_LEFT} fill="currentColor" />
+      <path d={MARK_RIGHT} fill="currentColor" />
     </svg>
   );
 }

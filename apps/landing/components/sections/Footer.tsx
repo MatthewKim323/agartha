@@ -30,7 +30,6 @@ const LINKS = {
     },
   ],
   Lineage: [
-    { label: 'itto, the body', href: 'https://github.com/silaswu4/itto' },
     {
       label: 'Skill library',
       href: 'https://github.com/MatthewKim323/agartha/tree/main/apps/mc-bot/src/skills',

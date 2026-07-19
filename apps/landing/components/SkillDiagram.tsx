@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { MARK_HEX, MARK_LEFT, MARK_RIGHT, MARK_STROKE } from '@/lib/mark';
 
 // One small isometric scene per skill, drawn in code.
 //
@@ -122,27 +123,38 @@ function path(
   }
 }
 
-// The agar mark, drawn small on the face of the agent block.
+// The agar mark, drawn from the same path data as components/Logo.tsx.
 //
-// Simplified from components/Logo.tsx: at this size the rounded hexagon and
-// the full interlock turn to mush, so it keeps the hexagon silhouette and the
-// two offset bars, which is what carries the recognition.
-function mark(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
-  ctx.strokeStyle = 'rgba(20,24,8,0.9)';
-  ctx.lineWidth = Math.max(1, r * 0.26);
-  ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const a = (Math.PI / 3) * i - Math.PI / 2;
-    const px = cx + Math.cos(a) * r;
-    const py = cy + Math.sin(a) * r * 0.92;
-    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+// The first version redrew it with primitives, a hexagon and two straight bars,
+// which was not the mark: the real one has slanted interlocking panels. Path2D
+// takes the SVG path strings directly, so this is the actual geometry scaled
+// down rather than an impression of it.
+let markPaths: { hex: Path2D; l: Path2D; r: Path2D } | null = null;
+function getMark() {
+  if (!markPaths) {
+    markPaths = {
+      hex: new Path2D(MARK_HEX),
+      l: new Path2D(MARK_LEFT),
+      r: new Path2D(MARK_RIGHT),
+    };
   }
-  ctx.closePath();
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(20,24,8,0.9)';
-  const w = r * 0.24, h = r * 0.74;
-  ctx.fillRect(cx - r * 0.42, cy - h / 2, w, h);
-  ctx.fillRect(cx + r * 0.18, cy - h / 2, w, h);
+  return markPaths;
+}
+
+function mark(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number) {
+  const m = getMark();
+  const k = size / 120; // paths are authored on a 120 viewBox
+  ctx.save();
+  ctx.translate(cx - size / 2, cy - size / 2);
+  ctx.scale(k, k);
+  ctx.strokeStyle = 'rgba(20,24,8,0.92)';
+  ctx.fillStyle = 'rgba(20,24,8,0.92)';
+  ctx.lineWidth = MARK_STROKE;
+  ctx.lineJoin = 'round';
+  ctx.stroke(m.hex);
+  ctx.fill(m.l);
+  ctx.fill(m.r);
+  ctx.restore();
 }
 
 // The agent. A lime cube carrying the agar mark so it reads as a body, and as
@@ -160,7 +172,7 @@ function agent(
   ctx.save();
   ctx.translate(0, -bob);
   cube(ctx, gx, gy, gz, LIME, cx, cy);
-  mark(ctx, x, y + TH + 7, TW * 0.42);
+  mark(ctx, x, y + TH + 6, TW * 0.86);
   ctx.restore();
 }
 

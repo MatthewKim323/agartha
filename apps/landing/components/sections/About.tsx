@@ -50,7 +50,6 @@ const SCRIPT: Line[] = [
     note: 'returns in 1ms',
   },
   { kind: 'bot', text: 'aight, otw', at: 3620 },
-  { kind: 'world', text: 'IDLE → TASK · already pathing', at: 3630 },
   { kind: 'world', text: 'oak_log ×3 → ×6 · birch_log ×4', at: 9100 },
   { kind: 'bot', text: 'got you six oak, four birch', at: 9240 },
 ];
@@ -135,15 +134,6 @@ export default function About() {
 
           {/* Transcript. Timing gutter left, exchange right. */}
           <div ref={root} className="relative">
-            <div className="mb-6 flex items-baseline justify-between border-b border-ink/10 pb-3">
-              <p className="font-mono text-[11px] tracking-widest text-faint uppercase">
-                Session · logged
-              </p>
-              <p className="font-mono text-[11px] tracking-widest text-faint uppercase">
-                elapsed
-              </p>
-            </div>
-
             <ol className="space-y-5">
               {SCRIPT.map((line, i) => {
                 const on = i < shown;
