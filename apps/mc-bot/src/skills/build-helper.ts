@@ -9,7 +9,10 @@ import { runWithTask } from "./types.js";
  */
 export const buildHelper: Skill = {
   name: "build_helper",
-  description: "Place blocks following a { placements: [{pos,item}] } spec. Places what it can afford and reports shortfalls.",
+  description:
+    "Place blocks at EXACT coordinates: { placements: [{pos,item}] }. Only use this when specific " +
+    "coordinates matter. For anything shaped — a house, shelter, wall, floor, platform — use build " +
+    "instead, which takes a shape and size and works out the coordinates itself.",
   async run(ctx, args) {
     const parsed = PlacementSpecInput.safeParse(args);
     if (!parsed.success) {
