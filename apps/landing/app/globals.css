@@ -19,6 +19,7 @@
      differently — Geist is tighter and more geometric at display sizes. */
   --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Space Mono', ui-monospace, 'SF Mono', monospace;
+  --font-canela: var(--font-canela), Canela, 'Times New Roman', serif;
 
   /* Type scale, from tokens/typography.json by usage count. */
   --text-display: 192px;   /* hero, x15 */
@@ -66,4 +67,19 @@ html.lenis body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Marquee. Two identical tracks sit side by side, so translating the pair by
+   half its width lands exactly on the seam and the loop is invisible. */
+@keyframes ticker {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Quantized state blink for the reflex-loop grid. Deliberately `steps()` with
+   no easing: a data element that eases reads as decoration, and this one is
+   meant to read as sampling. */
+@keyframes tick-on {
+  0%, 45%   { opacity: 1; }
+  46%, 100% { opacity: 0.18; }
 }

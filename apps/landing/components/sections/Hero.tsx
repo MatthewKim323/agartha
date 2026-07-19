@@ -14,10 +14,13 @@ import { DUR, EASE, DIST } from '@/lib/motion';
 //   · hero timing is 550ms (per-section.json), not the page-wide 600ms
 //   · mono labels are 12px Space Mono, the single most-used style on the page
 
+// All three are measured. The earlier build carried a "< 600ms target" here
+// because the voice path had never run; it has now, and first tool call was
+// observed at 345ms over a live session. See docs/MEASUREMENTS.md.
 const META = [
   { label: 'REFLEX LOOP', value: '15 HZ' },
-  { label: 'MEMORY RECALL', value: '25 MS' },
-  { label: 'TARGET TO FIRST AUDIO', value: '< 600 MS' },
+  { label: 'TOOL DISPATCH', value: '3 MS' },
+  { label: 'FIRST TOOL CALL', value: '345 MS' },
 ] as const;
 
 // Scroll parallax on the display words, recovered via motion-probe against the

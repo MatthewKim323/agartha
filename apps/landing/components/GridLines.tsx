@@ -46,7 +46,7 @@ export default function GridLines({ className = '' }: { className?: string }) {
     <motion.div
       aria-hidden
       style={{ x: reduced ? 0 : drift }}
-      className={`pointer-events-none absolute inset-0 ${className}`}
+      className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
     >
       {/* Verticals — full height of the section, so they overshoot the box. */}
       <div className={`${RULE} top-0 bottom-0 left-[10%] w-px`} />

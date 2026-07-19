@@ -7,3 +7,7 @@ out/
 # redistribution. Replace with agartha capture footage.
 public/hero.mp4
 public/slides/
+
+# Licensed typeface (Canela, Commercial Type) — used under the project's own
+# licence, not redistributed here.
+app/fonts/

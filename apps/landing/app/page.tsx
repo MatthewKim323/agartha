@@ -4,9 +4,8 @@ import SkillSlider from '@/components/sections/SkillSlider';
 import ThreeLanes from '@/components/sections/ThreeLanes';
 import Stats from '@/components/sections/Stats';
 import StackTicker from '@/components/sections/StackTicker';
-import Lineage from '@/components/sections/Lineage';
+import ReflexGrid from '@/components/sections/ReflexGrid';
 import LogoMark from '@/components/sections/LogoMark';
-import CTA from '@/components/sections/CTA';
 import Footer from '@/components/sections/Footer';
 
 export default function Page() {
@@ -18,9 +17,8 @@ export default function Page() {
       <ThreeLanes />
       <Stats />
       <StackTicker />
-      <Lineage />
+      <ReflexGrid />
       <LogoMark />
-      <CTA />
       <Footer />
     </main>
   );
