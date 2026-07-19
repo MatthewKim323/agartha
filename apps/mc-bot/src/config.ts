@@ -29,6 +29,8 @@ export interface Config {
     /** Optional bearer token. Required in practice whenever host isn't loopback. */
     token?: string;
   };
+  /** Port for the live browser world view. Unset = off (it costs CPU). */
+  viewerPort?: number;
   tuning: {
     fastLoopHz: number;
     slowLoopIntervalMs: number;
@@ -72,6 +74,7 @@ export function loadConfig(): Config {
       port: num("MCP_PORT", 3001),
       token: process.env.MCP_AUTH_TOKEN || undefined,
     },
+    viewerPort: process.env.VIEWER_PORT ? Number(process.env.VIEWER_PORT) : undefined,
     tuning: {
       fastLoopHz: num("FAST_LOOP_HZ", 15),
       slowLoopIntervalMs: num("SLOW_LOOP_INTERVAL_MS", 4000),

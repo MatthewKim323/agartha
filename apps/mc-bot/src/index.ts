@@ -99,6 +99,7 @@ async function main() {
   };
 
   const http = await serveHttp(buildMcp, { host: cfg.mcp.host, port: cfg.mcp.port, token: cfg.mcp.token });
+
   log.info("itto is live. point the brain at the MCP endpoint and join the call.");
 
   // ── connection lifecycle + auto-reconnect ──
@@ -106,6 +107,20 @@ async function main() {
   // mineflayer Bot is recreated and rebound, so the brain's session survives.
   let activeBot = bot;
   let reconnecting = false;
+
+  // Optional live world view. Renders the bot's surroundings in a browser,
+  // turning "an agent is acting in a world" from a claim into something you can
+  // watch. Opt-in via VIEWER_PORT: chunk rendering competes with the reflex
+  // loop for CPU, and the reflex loop wins.
+  if (cfg.viewerPort) {
+    try {
+      const { mineflayer: mineflayerViewer } = await import("prismarine-viewer");
+      mineflayerViewer(activeBot, { port: cfg.viewerPort, firstPerson: false });
+      log.info(`world view: http://localhost:${cfg.viewerPort}`);
+    } catch (e) {
+      log.warn(`viewer failed to start (non-fatal): ${(e as Error).message}`);
+    }
+  }
 
   const onChat = (username: string, message: string) => {
     if (username === activeBot.username) return;
