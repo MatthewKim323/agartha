@@ -1,0 +1,69 @@
+@import 'tailwindcss';
+
+/* Tokens carry the reference palette under semantic names. The capture stored
+   these as opaque Framer UUIDs (--token-c3d568f8-...), which are unreadable in
+   markup, so they're renamed here by role and the hex values kept exact. */
+@theme {
+  --color-paper: #f4f4f2;
+  --color-ink: #171717;
+  --color-muted: #595959;
+  --color-faint: #858585;
+  --color-line: #e4e4e4;
+  --color-surface: #1e1e1f;
+  --color-surface-2: #29292b;
+  --color-accent: #c8fa00;
+  --color-blue: #003bf0;
+
+  /* Captured families: Geist (296 uses) for sans, Space Mono (70) for mono.
+     The first build guessed Inter + IBM Plex Mono, which sit noticeably
+     differently — Geist is tighter and more geometric at display sizes. */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* Type scale, from tokens/typography.json by usage count. */
+  --text-display: 192px;   /* hero, x15 */
+  --text-h1: 64px;         /* x7 */
+  --text-h2: 48px;         /* x5 */
+  --text-h3: 32px;         /* x63 */
+  --text-h4: 24px;         /* x65 */
+  --text-body: 16px;       /* x36 */
+  --text-body-sm: 15px;    /* x31 */
+  --text-label: 12px;      /* x941 — the mono labels carry the page */
+  --text-label-sm: 11px;   /* x19 */
+
+  /* Line heights as captured, expressed as ratios against their size.
+     25.92/16 = 1.62 body, 38.4/32 = 1.2 headings. */
+  --leading-body: 1.62;
+  --leading-heading: 1.2;
+
+  /* Mirrors lib/motion.ts so CSS-driven transitions match JS-driven ones. */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.08, 0.78, 0.56, 1);
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Lenis drives scroll position, so the browser must not also animate it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Respect reduced-motion: entrances resolve instantly rather than sliding.
+   Lenis is disabled separately in SmoothScroll.tsx. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

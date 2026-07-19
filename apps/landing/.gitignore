@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+*.log
+
+# Placeholder media from the reference template — licensed for use, not for
+# redistribution. Replace with agartha capture footage.
+public/hero.mp4
+public/slides/
