@@ -1,6 +1,7 @@
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
 import TheGap from '@/components/sections/TheGap';
+import Validation from '@/components/sections/Validation';
 import WhyEmbodied from '@/components/sections/WhyEmbodied';
 import SkillSlider from '@/components/sections/SkillSlider';
 import ThreeLanes from '@/components/sections/ThreeLanes';
@@ -17,6 +18,7 @@ export default function Page() {
       <Hero />
       <About />
       <TheGap />
+      <Validation />
       <WhyEmbodied />
       <SkillSlider />
       <ThreeLanes />

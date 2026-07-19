@@ -1,0 +1,84 @@
+'use client';
+
+import { RevealLines } from '@/components/RevealText';
+
+// The demand side, quoted rather than asserted.
+//
+// This is a public statement from an a16z partner describing a product he
+// wants to exist. It is quoted briefly and attributed, and that is the whole
+// claim being made here: someone who funds companies described this shape
+// out loud, before we built it.
+//
+// What this section must never imply: that a16z has seen agartha, endorsed it,
+// invested, or is aware it exists. The wording below is deliberate on that
+// point, because the difference between "they asked for this" and "they backed
+// us" is exactly the kind of thing that gets caught in a room full of
+// investors, and being caught inflating one line would cost every other claim
+// on the page.
+const QUOTE =
+  'one of the products that i would love to exist is what i call a contextual companion for my son who plays minecraft.';
+
+const BEATS = [
+  {
+    k: 'The ask',
+    v: 'A companion that sits inside the game a kid already plays, rather than another app beside it.',
+  },
+  {
+    k: 'The reason',
+    v: 'Who you play with shapes how you play. The ask was for something present and steady in that context.',
+  },
+  {
+    k: 'What we built',
+    v: 'A duo partner that joins the world, keeps up in voice, and remembers you between sessions.',
+  },
+] as const;
+
+export default function Validation() {
+  return (
+    <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
+      <div className="mx-auto max-w-6xl">
+        <p className="font-mono text-[12px] tracking-widest text-white/40">
+          THE ASK
+        </p>
+
+        <RevealLines
+          as="h2"
+          className="mt-5 max-w-4xl text-[42px] leading-[1.18] font-medium tracking-[-0.04em] text-white md:text-[56px]"
+          duration={1}
+          lines={['Somebody asked for this', 'before we built it']}
+        />
+
+        {/* The quote. Set large, because it is the section. */}
+        <figure className="mt-14 max-w-4xl border-l-2 border-accent pl-7 md:pl-10">
+          <blockquote className="text-[24px] leading-[1.45] font-medium tracking-[-0.02em] text-white md:text-[34px]">
+            &ldquo;{QUOTE}&rdquo;
+          </blockquote>
+          <figcaption className="mt-6 font-mono text-[11px] tracking-widest text-white/45 uppercase">
+            Anish Acharya, general partner at a16z · speaking publicly about a
+            product he wants to exist
+          </figcaption>
+        </figure>
+
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-3">
+          {BEATS.map((b) => (
+            <div key={b.k} className="bg-surface p-8">
+              <p className="font-mono text-[11px] tracking-widest text-white/40 uppercase">
+                {b.k}
+              </p>
+              <p className="mt-4 max-w-[34ch] text-[16px] leading-[1.55] text-white/85">
+                {b.v}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-10 max-w-[62ch] font-mono text-[11px] leading-[1.8] text-white/35">
+          Quoted from a public statement. a16z has not seen agartha, has no
+          involvement in it, and none of this implies otherwise. The point is
+          only that the shape was described out loud by someone who funds
+          companies, and we went and built it.
+        </p>
+      </div>
+    </section>
+  );
+}
