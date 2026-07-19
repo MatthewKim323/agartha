@@ -16,7 +16,7 @@ const log = logger("dash");
  */
 
 export interface LaneEvent {
-  lane: "reflex" | "voice" | "action" | "memory";
+  lane: "reflex" | "voice" | "action" | "memory" | "reflection";
   label: string;
   at: number;
   /** ms the operation took, when known. */
@@ -92,6 +92,9 @@ const PAGE = `<!doctype html>
   .voice  .ev { background:#1a160a; color:#fbbf24; border-color:#332a12; }
   .action .ev { background:#0a1420; color:#60a5fa; border-color:#12263d; }
   .memory .ev { background:#170f1e; color:#c084fc; border-color:#2b1a38; }
+  /* Deliberately the slow lane. Seeing it tick over seconds while voice keeps
+     answering in under two is the whole architecture in one screenshot. */
+  .reflection .ev { background:#1e1210; color:#fb923c; border-color:#3a2116; }
   .ev.bad { background:#1f0d0d !important; color:#f87171 !important; border-color:#3f1d1d !important; }
   .ms { opacity:.55; margin-left:5px; }
   table { border-collapse:collapse; font-size:12px; }
@@ -106,9 +109,10 @@ const PAGE = `<!doctype html>
 <div class="pills" id="pills"></div>
 <div class="lanes">
   <div class="lane reflex"><div class="name">reflex<br><span class="k">15Hz</span></div><div class="track" id="t-reflex"></div></div>
-  <div class="lane voice"><div class="name">voice<br><span class="k">~1.6s</span></div><div class="track" id="t-voice"></div></div>
+  <div class="lane voice"><div class="name">voice<br><span class="k">1.8s p50</span></div><div class="track" id="t-voice"></div></div>
   <div class="lane action"><div class="name">action<br><span class="k">~3ms</span></div><div class="track" id="t-action"></div></div>
   <div class="lane memory"><div class="name">memory<br><span class="k">~25ms</span></div><div class="track" id="t-memory"></div></div>
+  <div class="lane reflection"><div class="name">reasoning<br><span class="k">~8s, off-path</span></div><div class="track" id="t-reflection"></div></div>
 </div>
 <table id="rel"></table>
 <script>
@@ -125,7 +129,7 @@ async function tick() {
     + Object.entries(s.counters).map(([k,v]) =>
         '<span class="pill">' + k + ' ' + v + '</span>').join('');
 
-  for (const lane of ['reflex','voice','action','memory']) {
+  for (const lane of ['reflex','voice','action','memory','reflection']) {
     const evs = s.events.filter(e => e.lane === lane).slice(-14);
     document.getElementById('t-' + lane).innerHTML = evs.map(e =>
       '<span class="ev' + (e.ok === false ? ' bad' : '') + '">' + esc(e.label) +

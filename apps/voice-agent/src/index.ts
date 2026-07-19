@@ -10,6 +10,7 @@ import { LiveSession, OUTPUT_SAMPLE_RATE } from "./live.js";
 import { McClient } from "./mc.js";
 import { buildPersona } from "./persona.js";
 import { callMemoryTool, isMemoryTool, MEMORY_TOOLS } from "./memory-tools.js";
+import { PLAN_TOOL, Planner, speakablePlan } from "./plan.js";
 import { reflect, type SessionExchange } from "./reflect.js";
 import { Dashboard } from "./dashboard.js";
 import { TurnQueue } from "./turn-queue.js";
@@ -25,7 +26,7 @@ const log = logger("agent");
  *
  *   reflex        15Hz, in the bot process, no LLM
  *   conversation  this file — audio in, audio out, tools dispatched directly
- *   reflection    memory retrieval, always speculative, never awaited
+ *   reflection    memory retrieval and RunType planning, never awaited
  */
 
 function env(name: string, fallback = ""): string {
@@ -95,6 +96,16 @@ async function main(): Promise<void> {
   } else {
     log.info("episodic memory disabled (no InsForge config)");
   }
+
+  // ── the reflection lane: deep planning on RunType ──
+  // Off the speech path by construction. See plan.ts for why routing the
+  // conversation lane through a managed runtime would be the wrong integration.
+  const planner = new Planner({
+    url: env("RUNTYPE_MCP_URL"),
+    key: env("RUNTYPE_MCP_KEY"),
+    timeoutMs: Number(env("RUNTYPE_TIMEOUT_MS") || 30_000),
+  });
+  log.info(planner.enabled ? "reasoning lane enabled (RunType)" : "reasoning lane disabled (no RunType config)");
 
   // ── live coordination view ──
   let reliabilityCache: Array<Record<string, unknown>> = [];
@@ -268,13 +279,84 @@ async function main(): Promise<void> {
     }, 2000);
   }
 
+  /**
+   * The one tool that must not be awaited.
+   *
+   * Every other tool here returns in single-digit milliseconds, so the model
+   * can wait for the result inside a turn. The planner takes seconds (measured
+   * 7.9s, docs/MEASUREMENTS.md), and Gemini Live holds the turn open until a
+   * function response arrives — so awaiting it would put eight seconds of dead
+   * air in front of speech. That is precisely the thing this project exists to
+   * delete, and it would be embarrassing to reintroduce it as a feature.
+   *
+   * So: acknowledge instantly, think in the background, and deliver the plan
+   * through `sendContext` — the same door proactive nudges already come
+   * through. The model stays conversational the entire time and the plan lands
+   * as something it noticed, not as a response it blocked on.
+   */
+  function dispatchPlan(goal: string): string {
+    if (!goal.trim()) return "no goal given";
+    log.info(`planning: "${goal.slice(0, 60)}"`);
+    dash.push("reflection", `planning: ${goal.slice(0, 30)}`);
+
+    void (async () => {
+      // Cheap situational awareness so the planner isn't reasoning blind.
+      // These are localhost MCP calls in the milliseconds; we are already off
+      // the speech path here, so awaiting them costs nothing that matters.
+      const [inv, near] = await Promise.all([
+        mc.call("inventory_report", {}).catch(() => ""),
+        mc.call("nearby_blocks", {}).catch(() => ""),
+      ]);
+      const context = [
+        "world state:",
+        inv ? `- inventory: ${inv}` : "- inventory: unknown",
+        near ? `- nearby: ${near}` : "- nearby: unknown",
+      ].join("\n");
+
+      const plan = await planner.plan(goal, context);
+      if (!plan) {
+        log.warn("planner returned nothing");
+        dash.push("reflection", "plan failed", { ok: false });
+        live.sendContext(
+          `[your planning ran and came back empty. Say so briefly and naturally, then just do the ` +
+            `obvious next thing yourself. Do not apologise at length.]`,
+        );
+        return;
+      }
+
+      log.info(`plan: ${plan.steps.length} steps in ${plan.ms}ms — ${plan.summary}`);
+      dash.push("reflection", `plan: ${plan.steps.length} steps`, { ms: plan.ms, ok: true });
+      episodic.recordToolCall({
+        tool: "plan",
+        args: { goal },
+        result: plan.summary,
+        ok: plan.steps.length > 0,
+        duration_ms: plan.ms,
+      });
+      // Context, not a command. Same principle as nudges: the model decides how
+      // to say it and whether to start executing, rather than being ordered to
+      // read a plan aloud.
+      live.sendContext(
+        `[the plan you asked for just came back, after ${(plan.ms / 1000).toFixed(1)}s of thinking. ` +
+          `Tell matt what the move is in your own words, briefly. If he's still up for it, start on ` +
+          `step one with set_goal — do NOT run every step at once.]\n${speakablePlan(plan)}`,
+      );
+    })();
+
+    // What the model actually gets back, in about a millisecond.
+    return "thinking about it — keep talking, i'll have it in a few seconds";
+  }
+
   const live = new LiveSession({
     apiKey: geminiKey,
     systemInstruction: persona.text,
     // Bot tools plus memory tools. Memory is callable, not just ambient:
     // when someone asks a direct question about their own life, the agent has
     // to actually go and look. Affordable because recall is ~25ms.
-    tools: [...mc.functionDeclarations, ...MEMORY_TOOLS],
+    // The planner joins the same list, but it is the one tool that must not be
+    // awaited: it takes seconds. `dispatchPlan` returns instantly and the plan
+    // arrives later through the same door proactive nudges use.
+    tools: [...mc.functionDeclarations, ...MEMORY_TOOLS, ...(planner.enabled ? [PLAN_TOOL] : [])],
     callbacks: {
       onAudio: (pcm) => {
         stats.modelChunks++;
@@ -290,9 +372,12 @@ async function main(): Promise<void> {
       },
       onToolCall: async (name, args) => {
         const t = startTrace("tool");
-        const result = isMemoryTool(name)
-          ? await callMemoryTool(gbrain, name, args, new Date(), episodic)
-          : await mc.call(name, args);
+        const result =
+          name === PLAN_TOOL.name
+            ? dispatchPlan(String(args.goal ?? ""))
+            : isMemoryTool(name)
+              ? await callMemoryTool(gbrain, name, args, new Date(), episodic)
+              : await mc.call(name, args);
         t.mark("dispatched");
         const rec = t.end("ok");
         // A tool that reports failure in its text is a failure. Recording that
