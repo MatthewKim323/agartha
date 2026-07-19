@@ -140,12 +140,23 @@ async function main(): Promise<void> {
 
   // ── Discord ──
   const discord = new DiscordClient({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
-  discord.once("ready", async () => {
+  discord.once("clientReady", async () => {
     log.info(`discord ready as ${discord.user?.tag}`);
-    const guild = await discord.guilds.fetch(guildId);
-    await hub.join(guild, channelId);
-    await live.start();
-    log.info("in the call");
+    // An async listener that throws becomes an unhandled 'error' event and
+    // takes the whole process down with a stack trace. Fail with something
+    // actionable instead.
+    try {
+      const guild = await discord.guilds.fetch(guildId);
+      await hub.join(guild, channelId);
+      await live.start();
+      log.info("in the call");
+    } catch (e) {
+      log.error(`could not join voice: ${(e as Error).message}`);
+      log.error(`guild=${guildId} channel=${channelId}`);
+      live.close();
+      discord.destroy();
+      process.exit(1);
+    }
   });
   await discord.login(discordToken);
 

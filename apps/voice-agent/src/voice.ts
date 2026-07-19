@@ -64,7 +64,9 @@ export class VoiceHub {
     } catch (e) {
       log.error(`voice never reached Ready (stuck at "${connection.state.status}") — ${(e as Error).message}`);
       log.error(
-        "likely one of: bot lacks Connect/Speak in THAT channel, wrong channel id, or @discordjs/voice UDP/encryption under Bun",
+        "Stuck at 'signalling' almost always means the channel id does not resolve for this bot: " +
+          "either it belongs to another guild, it was deleted, or the bot lacks ViewChannel/Connect on it. " +
+          "List the channels this token can actually see before assuming a transport bug.",
       );
       connection.destroy();
       throw e;
