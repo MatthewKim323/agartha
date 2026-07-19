@@ -39,7 +39,7 @@ const STEPS = [
     n: '03',
     name: 'A Call Is Emitted',
     timing: '345ms to first tool',
-    body: 'Measured on a live session. agartha works out that the world is needed, or that something wants remembering, and reaches for it mid sentence.',
+    body: 'Measured on a live session. agar works out that the world is needed, or that something wants remembering, and reaches for it mid sentence.',
   },
   {
     n: '04',
@@ -51,13 +51,13 @@ const STEPS = [
     n: '05',
     name: 'The Goal Starts',
     timing: '1ms to return',
-    body: 'The goal comes back before the work starts. That one millisecond is why agartha can say "aight, otw" and already be moving.',
+    body: 'The goal comes back before the work starts. That one millisecond is why agar can say "aight, otw" and already be moving.',
   },
   {
     n: '06',
-    name: 'agartha Reports Back',
+    name: 'agar Reports Back',
     timing: 'on completion',
-    body: 'agartha tells you when the job is genuinely finished, not when it began. "Got the wood" turns up with the wood.',
+    body: 'agar tells you when the job is genuinely finished, not when it began. "Got the wood" turns up with the wood.',
   },
 ] as const;
 

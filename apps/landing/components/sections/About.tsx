@@ -57,7 +57,7 @@ const SCRIPT: Line[] = [
 
 const LABEL: Record<Line['kind'], string> = {
   you: 'you',
-  bot: 'agartha',
+  bot: 'agar',
   tool: 'tool',
   world: 'world',
 };
@@ -116,9 +116,9 @@ export default function About() {
               className="mt-8 max-w-[44ch] text-[17px] leading-[1.62] text-muted"
               delay={0.1}
               lines={[
-                'agartha hops in your Discord call and your',
+                'agar hops in your Discord call and your',
                 'world at the same time. Ask for something and',
-                'agartha answers like a person would, then goes',
+                'agar answers like a person would, then goes',
                 'and handles it while you carry on.',
               ]}
             />

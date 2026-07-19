@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform, type MotionValue } from 'motion/react';
 import { DUR, EASE, DIST } from '@/lib/motion';
+import Logo from '@/components/Logo';
 
 // Rebuilt against the capture rather than the screenshot.
 //
@@ -108,7 +109,10 @@ export default function Hero() {
               MENU
             </span>
           </div>
-          <p className="mt-2 text-[15px] text-white">agartha</p>
+          <div className="mt-2 flex items-center gap-2.5">
+            <Logo className="h-[18px] w-[18px] text-white" title={null} />
+            <p className="text-[15px] text-white">agar</p>
+          </div>
         </motion.header>
         {/* Split display type. Fixed 192px as captured, stepped down at narrow
             widths where 192px would simply not fit. */}

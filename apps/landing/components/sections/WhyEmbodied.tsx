@@ -10,7 +10,7 @@ import RevealText, { RevealLines } from '@/components/RevealText';
 // while looking like marketing.
 //
 // Neither study is characterised beyond what it found. No claim is made here
-// that agartha treats loneliness, and none should be added later.
+// that agar treats loneliness, and none should be added later.
 const FINDINGS = [
   {
     source: 'Harvard Business School',
@@ -81,14 +81,14 @@ export default function WhyEmbodied() {
               className="max-w-[46ch] text-[16px] leading-[1.62] text-muted"
               delay={0.08}
               lines={[
-                'So agartha is not built to be talked to,',
-                'but to be played with. agartha joins the',
+                'So agar is not built to be talked to,',
+                'but to be played with. agar joins the',
                 'world, keeps up, and does the work beside',
                 'you, which no text box has ever reached.',
               ]}
             />
             <p className="mt-6 max-w-[46ch] font-mono text-[11px] leading-[1.8] text-faint">
-              agartha is a game companion, not therapy, not a mental health
+              agar is a game companion, not therapy, not a mental health
               tool, and not a replacement for people.
             </p>
           </div>

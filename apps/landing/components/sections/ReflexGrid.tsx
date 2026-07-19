@@ -87,7 +87,7 @@ export default function ReflexGrid() {
           lines={[
             'Three lanes that never block each other. The quick one keeps',
             'running no matter what the slow one is up to, which is why',
-            'agartha still feels alive while thinking.',
+            'agar still feels alive while thinking.',
           ]}
         />
 

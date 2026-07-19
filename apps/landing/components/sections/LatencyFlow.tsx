@@ -128,7 +128,7 @@ export default function LatencyFlow() {
           delay={0.1}
           lines={[
             'Every leg below runs for its real measured duration, scaled by one',
-            'constant. The long bit is agartha thinking. Everything after that',
+            'constant. The long bit is agar thinking. Everything after that',
             'used to be what kept you waiting.',
           ]}
         />

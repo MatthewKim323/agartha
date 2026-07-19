@@ -97,7 +97,7 @@ export default function WhatsNext() {
           className="mt-7 max-w-2xl text-[16px] leading-[1.62] text-muted"
           delay={0.1}
           lines={[
-            'agartha meets the world through a single typed interface and',
+            'agar meets the world through a single typed interface and',
             'never learns which world is on the other side. The companion,',
             'the voice and the memory stay exactly as they are. Only the',
             'body changes.',
@@ -119,7 +119,7 @@ export default function WhatsNext() {
               className="fill-ink" style={{ opacity: 0 }}
             />
             <text data-fade x="105" y="126" textAnchor="middle" fill="#f4f4f2"
-              style={{ opacity: 0, fontSize: 15, fontWeight: 500 }}>agartha</text>
+              style={{ opacity: 0, fontSize: 15, fontWeight: 500 }}>agar</text>
             <text data-fade x="105" y="146" textAnchor="middle" fill="rgba(244,244,242,0.55)"
               style={{ opacity: 0, fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
               voice + memory

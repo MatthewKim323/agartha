@@ -9,7 +9,7 @@ import { RevealLines } from '@/components/RevealText';
 // claim being made here: someone who funds companies described this shape
 // out loud, before we built it.
 //
-// What this section must never imply: that a16z has seen agartha, endorsed it,
+// What this section must never imply: that a16z has seen agar, endorsed it,
 // invested, or is aware it exists. The wording below is deliberate on that
 // point, because the difference between "they asked for this" and "they backed
 // us" is exactly the kind of thing that gets caught in a room full of
@@ -62,7 +62,7 @@ export default function Validation() {
             </span>
             <span className="mt-3 block max-w-[46ch] text-[14px] leading-[1.55] text-white/40">
               Describing a product he wants someone to build, publicly, before
-              agartha existed.
+              agar existed.
             </span>
           </figcaption>
         </figure>
@@ -81,7 +81,7 @@ export default function Validation() {
         </div>
 
         <p className="mt-10 max-w-[62ch] font-mono text-[11px] leading-[1.8] text-white/35">
-          Quoted from a public statement. a16z has not seen agartha, has no
+          Quoted from a public statement. a16z has not seen agar, has no
           involvement in it, and none of this implies otherwise. The point is
           only that the shape was described out loud by someone who funds
           companies, and we went and built it.

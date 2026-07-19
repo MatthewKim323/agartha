@@ -1,5 +1,7 @@
 'use client';
 
+import Logo from '@/components/Logo';
+
 // The page's closer. This replaced both the old footer and the CTA block above
 // it, that block restated what the rest of the page already proves, and a
 // launch page for a repo does not need two calls to action pointing at the same
@@ -50,8 +52,9 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-6 pt-24 pb-16 md:px-10">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-[1.4fr_auto_auto]">
           <div>
+            <Logo className="mb-6 h-9 w-9 text-ink" />
             <p className="max-w-sm text-[16px] leading-[1.62] text-muted">
-              A Minecraft companion. agartha answers about as fast as a person
+              A Minecraft companion. agar answers about as fast as a person
               would, and gets moving before the sentence is finished.
             </p>
           </div>
@@ -89,7 +92,7 @@ export default function Footer() {
             // pb reserves the descender so the 'g' clears the rule below.
             style={{ fontSize: 'clamp(96px, 23vw, 360px)', paddingBottom: '0.1em' }}
           >
-            agartha
+            agar
             {/* Halftone twin, masked to the lower half. */}
             <span
               aria-hidden
@@ -106,7 +109,7 @@ export default function Footer() {
                   'linear-gradient(to bottom, transparent 46%, black 92%)',
               }}
             >
-              agartha
+              agar
             </span>
           </h2>
         </div>

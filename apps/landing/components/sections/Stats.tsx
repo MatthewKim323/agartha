@@ -17,7 +17,13 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 // Log scale, because 3980ms next to 64ms on a linear axis renders the fast bar
 // as a single pixel. Log makes both legible while keeping the gap honest.
-const logScale = (ms: number) => Math.log10(Math.max(ms, 1)) / Math.log10(4000);
+// Rounded before it reaches the DOM. Math.log10 does not serialise identically
+// between the server's engine and the browser's, so an unrounded percentage
+// arrives as 88.95243250722955% on one side and 88.952433% on the other, which
+// React reports as a hydration mismatch it refuses to patch. Four decimals is
+// far below one device pixel at any width.
+const logScale = (ms: number) =>
+  +((Math.log10(Math.max(ms, 1)) / Math.log10(4000)).toFixed(4));
 
 const COMPARISONS = [
   // 6901ms is a real logged line from the predecessor's own output, not the
@@ -121,7 +127,7 @@ function Bar({
         </div>
         <div className="flex items-center gap-4">
           <span className="w-24 shrink-0 font-mono text-[11px] text-ink">
-            agartha
+            agar
           </span>
           <span className="relative h-6 flex-1 overflow-hidden rounded-[2px] bg-ink/[0.05]">
             <Ticks />

@@ -104,7 +104,7 @@ export default function TheGap() {
             Not one of them can hand you a pickaxe.
           </p>
           <p className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-white/55">
-            agartha shows up in the world with you. Not a chat window asking
+            agar shows up in the world with you. Not a chat window asking
             how your day went, but a second player standing next to you who
             says &ldquo;on it&rdquo; and goes.
           </p>
