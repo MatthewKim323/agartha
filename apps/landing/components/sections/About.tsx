@@ -1,99 +1,190 @@
 'use client';
 
-import RevealText, { RevealLines } from '@/components/RevealText';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { RevealLines } from '@/components/RevealText';
 
-// A plain about.
-//
-// This went through a diagram phase and came back out. A before/after framed
-// the product as a rewrite of something else, which is the wrong posture for
-// something that works, and the page already carries four diagrams, so a fifth
-// here was load without payoff. What this section owes the reader is simply
-// what the thing is.
-//
-// Structure instead of illustration: a stated measure on the prose, and a
-// hairline spec rail beside it. The rail is the device that keeps a text
-// section from reading as a wall, and every value in it is real.
+if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
-const SPEC = [
-  { k: 'Runs in', v: 'Discord voice' },
-  { k: 'Drives', v: 'Mineflayer, MC 1.20.6' },
-  { k: 'Speech', v: 'Gemini Live, native VAD' },
-  { k: 'Control', v: 'MCP over localhost' },
-  { k: 'Memory', v: 'Shared with jabby' },
-  { k: 'Status', v: 'Early, working' },
-] as const;
+// About, as a transcript.
+//
+// Two earlier versions of this section explained the product in prose, then in
+// a before/after diagram. Both described a voice companion without ever letting
+// you hear one. This plays an actual exchange instead, with a timing gutter
+// showing when each thing fired, so the explanation and the demo are the same
+// object.
+//
+// The exchange is real: the session logged in docs/MEASUREMENTS.md, with the
+// recall call and its 345ms mark exactly as recorded. Nothing here is a
+// plausible-looking mock.
+
+type Line = {
+  kind: 'you' | 'tool' | 'bot' | 'world';
+  text: string;
+  at: number;
+  note?: string;
+};
+
+const SCRIPT: Line[] = [
+  { kind: 'you', text: 'yo what am i building at kali labs again', at: 0 },
+  {
+    kind: 'tool',
+    text: 'recall({ query: "what is matt building at kali" })',
+    at: 345,
+    note: 'first tool call',
+  },
+  {
+    kind: 'bot',
+    text: 'you mentioned building jabby and the kali platform, which seems like a lot at once btw. is there one in particular?',
+    at: 480,
+  },
+  { kind: 'you', text: 'yeah go grab some wood while i think', at: 3200 },
+  {
+    kind: 'tool',
+    text: 'set_goal({ skill: "chop_tree", label: "get wood" })',
+    at: 3546,
+    note: 'returns in 1ms',
+  },
+  { kind: 'bot', text: 'aight, otw', at: 3620 },
+  { kind: 'world', text: 'IDLE → TASK · already pathing', at: 3630 },
+  { kind: 'world', text: 'oak_log ×3 → ×6 · birch_log ×4', at: 9100 },
+  { kind: 'bot', text: 'got the wood', at: 9240 },
+];
+
+const LABEL: Record<Line['kind'], string> = {
+  you: 'you',
+  bot: 'agartha',
+  tool: 'tool',
+  world: 'world',
+};
+
+function fmt(ms: number) {
+  if (ms === 0) return '0ms';
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+}
 
 export default function About() {
+  const root = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(0);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(SCRIPT.length);
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      // Lines land in their logged order. Wall-clock gaps are compressed,
+      // because nobody watches a nine second pause, but the ordering is the
+      // recorded one: the tool call precedes the reply, and the bot is already
+      // moving before it finishes speaking.
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: el, start: 'top 72%', once: true },
+      });
+      SCRIPT.forEach((_, i) => {
+        tl.call(
+          () => setShown(i + 1),
+          undefined,
+          i === 0 ? 0 : `+=${i < 3 ? 0.5 : 0.4}`,
+        );
+      });
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section className="relative bg-paper py-24 md:py-36">
       <div className="mx-auto max-w-6xl px-6 md:px-10">
         <p className="font-mono text-[12px] tracking-widest text-muted">ABOUT</p>
 
-        <div className="mt-6 grid grid-cols-1 gap-14 md:grid-cols-[1.35fr_1fr] md:gap-24">
-          {/* Prose. Measure held near 62ch, long enough to read as editorial,
-              short enough that the eye finds the next line without hunting. */}
+        <div className="mt-6 grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.3fr] md:gap-20">
           <div>
-            {/* Break authored rather than wrapped: a heading that wraps inside
-                one mask slides as a single block instead of staggering. */}
             <RevealLines
               as="h2"
-              className="text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[56px]"
+              className="text-[38px] leading-[1.2] font-medium tracking-[-0.04em] text-ink md:text-[40px] xl:text-[56px]"
               lines={['A second player', 'who talks back']}
             />
-
             <RevealLines
-              className="mt-8 max-w-[62ch] text-[17px] leading-[1.62] text-muted"
-              delay={0.08}
+              className="mt-8 max-w-[44ch] text-[17px] leading-[1.62] text-muted"
+              delay={0.1}
               lines={[
-                'agartha joins your Discord call and your world at the same',
-                'time. You talk to it the way you would talk to anyone else',
-                'you play with, and it answers in about the time a person',
-                'would, then goes and does the thing.',
+                'It joins your Discord call and your world at',
+                'the same time. One session holds the',
+                'conversation and the controls, so speaking',
+                'and acting are the same act.',
               ]}
             />
-
-            <RevealLines
-              className="mt-6 max-w-[62ch] text-[17px] leading-[1.62] text-muted"
-              delay={0.16}
-              lines={[
-                'One session holds the conversation and the controls, so',
-                'speaking and acting are the same act. It starts moving',
-                'while the sentence is still landing, and tells you when',
-                'the work is actually done rather than when it began.',
-              ]}
-            />
-
-            <div className="mt-10">
-              <a
-                href="https://github.com/MatthewKim323/agartha/blob/main/docs/ARCHITECTURE.md"
-                className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-[15px] text-white transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.06]"
-              >
-                Read The Architecture
-                <span className="transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
-            </div>
+            <a
+              href="https://github.com/MatthewKim323/agartha/blob/main/docs/MEASUREMENTS.md"
+              className="group mt-10 inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-[15px] text-white transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.06]"
+            >
+              See The Log
+              <span className="transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
+                →
+              </span>
+            </a>
           </div>
 
-          {/* Spec rail. Hairlines at low alpha, mono labels in a fixed column:
-              the device that makes a text section skimmable without a graphic. */}
-          <dl className="md:pt-4">
-            {SPEC.map((row) => (
-              <div
-                key={row.k}
-                className="flex items-baseline justify-between gap-6 border-t border-ink/[0.10] py-4"
-              >
-                <dt className="font-mono text-[11px] tracking-widest text-faint uppercase">
-                  {row.k}
-                </dt>
-                <dd className="text-right text-[15px] text-ink">{row.v}</dd>
-              </div>
-            ))}
-            <p className="mt-6 max-w-[40ch] font-mono text-[11px] leading-[1.8] text-faint">
-              Not affiliated with Mojang. Runs against your own server.
-            </p>
-          </dl>
+          {/* Transcript. Timing gutter left, exchange right. */}
+          <div ref={root} className="relative">
+            <div className="mb-6 flex items-baseline justify-between border-b border-ink/10 pb-3">
+              <p className="font-mono text-[11px] tracking-widest text-faint uppercase">
+                Session · logged
+              </p>
+              <p className="font-mono text-[11px] tracking-widest text-faint uppercase">
+                elapsed
+              </p>
+            </div>
+
+            <ol className="space-y-5">
+              {SCRIPT.map((line, i) => {
+                const on = i < shown;
+                const isTool = line.kind === 'tool';
+                const isWorld = line.kind === 'world';
+                return (
+                  <li
+                    key={i}
+                    className="grid grid-cols-[54px_1fr] items-baseline gap-4 transition-all duration-[550ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    style={{
+                      opacity: on ? 1 : 0,
+                      transform: on ? 'translateY(0)' : 'translateY(10px)',
+                    }}
+                  >
+                    <span className="text-right font-mono text-[11px] text-faint tabular-nums">
+                      {fmt(line.at)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="font-mono text-[10px] tracking-widest text-faint uppercase">
+                        {LABEL[line.kind]}
+                      </span>
+                      <span
+                        className={[
+                          'mt-1.5 block leading-[1.55]',
+                          isTool
+                            ? 'rounded-md bg-ink/[0.05] px-3 py-2 font-mono text-[12.5px] text-muted'
+                            : isWorld
+                              ? 'font-mono text-[12px] text-faint'
+                              : 'text-[16px] text-ink',
+                        ].join(' ')}
+                      >
+                        {line.text}
+                      </span>
+                      {line.note && (
+                        <span className="mt-1.5 block font-mono text-[11px] tracking-widest text-ink/40 uppercase">
+                          {line.note}
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </div>
       </div>
     </section>
