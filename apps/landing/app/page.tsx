@@ -8,6 +8,7 @@ import Stats from '@/components/sections/Stats';
 import LatencyFlow from '@/components/sections/LatencyFlow';
 import StackTicker from '@/components/sections/StackTicker';
 import ReflexGrid from '@/components/sections/ReflexGrid';
+import WhatsNext from '@/components/sections/WhatsNext';
 import Footer from '@/components/sections/Footer';
 
 export default function Page() {
@@ -23,6 +24,7 @@ export default function Page() {
       <Stats />
       <StackTicker />
       <ReflexGrid />
+      <WhatsNext />
       <Footer />
     </main>
   );
