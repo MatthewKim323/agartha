@@ -17,8 +17,8 @@
   /* Captured families: Geist (296 uses) for sans, Space Mono (70) for mono.
      The first build guessed Inter + IBM Plex Mono, which sit noticeably
      differently — Geist is tighter and more geometric at display sizes. */
-  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', monospace;
+  --font-sans: Geist, "Geist Placeholder", sans-serif;
+  --font-mono: "Space Mono", monospace;
   --font-canela: var(--font-canela), Canela, 'Times New Roman', serif;
 
   /* Type scale, from tokens/typography.json by usage count. */
