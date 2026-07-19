@@ -47,7 +47,7 @@ The demo gate was "say 'come chop that tree' and have audio start under 600ms wi
 
 ## Lineage
 
-- **itto** (`silaswu4/itto`) — the Mineflayer body, a UCSB hackathon build. The `BotControl` seam, the two-loop split, the skill library, and the hand-rolled 3x3 crafting that works around a mineflayer no-op on 1.20.6 all came from there and are kept largely intact.
+- **itto** (`silaswu4/itto`) — the Mineflayer body. The `BotControl` seam, the two-loop split, the skill library, and the hand-rolled 3x3 crafting that works around a mineflayer no-op on 1.20.6 all came from there and are kept largely intact.
 - **jabby** — identity and long-term memory. agartha builds its persona from jabby's actual prompt files rather than keeping its own copy, and reads and writes the same gbrain.
 
 ## Prior art worth reading
