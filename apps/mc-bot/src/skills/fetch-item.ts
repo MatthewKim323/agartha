@@ -9,7 +9,10 @@ import { runWithTask } from "./types.js";
  */
 export const fetchItem: Skill = {
   name: "fetch_item",
-  description: "Go to a remembered chest, grab an item, and bring it back to the player. Index chests first.",
+  description:
+    "Get an item FROM A CHEST and bring it to the player. Chests must be indexed first. Use this when " +
+    "the bot doesn't already have the thing. If it's already in the bot's own inventory, use give_item " +
+    "instead — that skips the chest trip.",
   async run(ctx, args) {
     const name = String(args?.name ?? "");
     if (!name) return "fetch_item needs an item name";
