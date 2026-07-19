@@ -48,7 +48,7 @@ function DisplayWord({
     // still only ever hides the rise.
     <motion.span data-word className="block" style={{ x: drift }}>
       <span
-        className="block overflow-hidden pb-[0.06em]"
+        className="block overflow-hidden pb-[0.26em]"
         // Perspective on the clipping parent, so the rise below can tip in 3D
         // without the mask itself tilting.
         style={{ perspective: 700 }}
