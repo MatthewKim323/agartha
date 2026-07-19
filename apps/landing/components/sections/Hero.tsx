@@ -2,7 +2,6 @@
 
 import { motion, useScroll, useTransform, type MotionValue } from 'motion/react';
 import { DUR, EASE, DIST } from '@/lib/motion';
-import VoxelField from '@/components/VoxelField';
 
 // Rebuilt against the capture rather than the screenshot.
 //
@@ -14,7 +13,6 @@ import VoxelField from '@/components/VoxelField';
 //   · headline carries the captured 2px blur; body copy does not
 //   · hero timing is 550ms (per-section.json), not the page-wide 600ms
 //   · mono labels are 12px Space Mono, the single most-used style on the page
-
 // All three are measured. The earlier build carried a "< 600ms target" here
 // because the voice path had never run; it has now, and first tool call was
 // observed at 345ms over a live session. See docs/MEASUREMENTS.md.
@@ -23,7 +21,6 @@ const META = [
   { label: 'HANDS', value: '3 MS' },
   { label: 'MEMORY', value: '345 MS' },
 ] as const;
-
 // Scroll parallax on the display words, recovered via motion-probe against the
 // live site. The two words drift apart horizontally as the page scrolls: the
 // upper moves right at +0.2225px per px of scroll, the lower left at the same
@@ -31,7 +28,6 @@ const META = [
 // The first build had none of this, and it is the hero's defining scroll move.
 const PARALLAX_RATE = 0.2225;
 const PARALLAX_CAP = 200;
-
 // Clip-masked word. translateY(110%) is the captured value, the extra 10%
 // keeps descenders hidden behind the mask edge.
 function DisplayWord({
@@ -65,7 +61,6 @@ function DisplayWord({
     </span>
   );
 }
-
 export default function Hero() {
   const { scrollY } = useScroll();
   // Cap distance / rate = the scroll position where the drift maxes out.
@@ -76,18 +71,27 @@ export default function Hero() {
   const driftLeft = useTransform(scrollY, [0, capAt], [0, -PARALLAX_CAP], {
     clamp: true,
   });
-
   return (
     <section className="relative h-svh w-full overflow-hidden bg-surface">
-      {/* Generated backdrop. Previously borrowed footage from the design
-          reference, which could not ship in the repo, so the deployed page
-          would have had an empty hero. This draws its own terrain instead. */}
-      <div className="absolute inset-0">
-        <VoxelField />
-      </div>
+      {/* Real gameplay, recorded in-world.
+          Two sources: VP9 is smaller and served first where supported, h264
+          covers everything else. The poster paints immediately so the hero is
+          never empty while the video decodes, and playsInline stops iOS
+          taking it fullscreen. muted is what makes autoplay legal at all. */}
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/hero-poster.jpg"
+      >
+        <source src="/hero.webm" type="video/webm" />
+        <source src="/hero.mp4" type="video/mp4" />
+      </video>
       {/* Scrim: the display type is white and the field has bright faces. */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
-
       <div className="relative flex h-full flex-col justify-between px-6 pt-6 pb-10 md:px-10 md:pt-8 md:pb-14">
         {/* Nav card: 64px rise with blur, matching the captured entrance. */}
         <motion.header
@@ -106,7 +110,6 @@ export default function Hero() {
           </div>
           <p className="mt-2 text-[15px] text-white">agartha</p>
         </motion.header>
-
         {/* Split display type. Fixed 192px as captured, stepped down at narrow
             widths where 192px would simply not fit. */}
         <div className="pointer-events-none flex-1 select-none">
@@ -117,7 +120,6 @@ export default function Hero() {
             </span>
           </h1>
         </div>
-
         <div>
           <motion.div
             className="h-px w-full origin-left bg-white/25"
