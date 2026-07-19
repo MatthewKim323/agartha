@@ -8,7 +8,10 @@ import { runWithTask } from "./types.js";
  */
 export const giveItem: Skill = {
   name: "give_item",
-  description: "Give the player an item from the bot's inventory (walks to them and drops it). args: { name, count? }.",
+  description:
+    "Hand the player something the bot ALREADY HAS: walks to them and drops it. { name, count? }. " +
+    "If the item is in a chest rather than the bot's inventory, use fetch_item instead. To see what " +
+    "the bot has, use inventory_report.",
   async run(ctx, args) {
     const name = String(args?.name ?? "");
     if (!name) return "give_item needs an item name";
