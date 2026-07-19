@@ -51,8 +51,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-[1.4fr_auto_auto]">
           <div>
             <p className="max-w-sm text-[16px] leading-[1.62] text-muted">
-              A Minecraft companion that answers about as fast as a person would,
-              and gets moving before it has finished the sentence.
+              A Minecraft companion. agartha answers about as fast as a person
+              would, and gets moving before the sentence is finished.
             </p>
           </div>
 

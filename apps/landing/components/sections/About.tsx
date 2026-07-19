@@ -116,10 +116,10 @@ export default function About() {
               className="mt-8 max-w-[44ch] text-[17px] leading-[1.62] text-muted"
               delay={0.1}
               lines={[
-                'It hops in your Discord call and your world',
-                'at the same time. Ask for something and it',
-                'answers like a person would, then goes and',
-                'does it while you get on with your own thing.',
+                'agartha hops in your Discord call and your',
+                'world at the same time. Ask for something and',
+                'agartha answers like a person would, then goes',
+                'and does the thing while you carry on.',
               ]}
             />
             <a

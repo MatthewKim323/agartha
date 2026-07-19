@@ -38,37 +38,37 @@ const SKILLS = [
     name: 'Chop tree',
     file: 'chop-tree.ts',
     kind: 'chop' as SkillKind,
-    body: 'Finds the nearest tree, takes it down, picks up what falls. It sets off the moment you ask, so "aight, otw" reaches you when it is already halfway there.',
+    body: 'agartha finds the nearest tree, takes the whole thing down, and picks up what falls. Setting off happens the moment you ask, so "aight, otw" reaches you from halfway there.',
   },
   {
     name: 'Mine down',
     file: 'mine-down.ts',
     kind: 'mine' as SkillKind,
-    body: 'Cuts a staircase instead of dropping straight down, watching for lava the whole way. That check runs in plain code, because you do not want a language model deciding whether that is lava.',
+    body: 'agartha cuts a staircase rather than dropping straight down, watching for lava the whole way. That check runs in plain code, because you do not want a language model deciding whether that is lava.',
   },
   {
     name: 'Fetch item',
     file: 'fetch-item.ts',
     kind: 'fetch' as SkillKind,
-    body: 'Goes and gets something, from a chest or off the ground, and brings it to you. It says it is done when it actually has the thing, not when it sets off.',
+    body: 'agartha goes and gets something, from a chest or off the ground, and brings the thing back. You hear "done" when agartha actually has it, not on setting off.',
   },
   {
     name: 'Combat assist',
     file: 'combat-assist.ts',
     kind: 'combat' as SkillKind,
-    body: 'Steps in when something hostile gets close, backs off when it does not. Runs on the fast loop, so it reacts quicker than anything waiting on a model could.',
+    body: 'agartha steps in when something hostile gets close, and backs off when nothing is. This runs on the fast loop, quicker than anything waiting on a model could manage.',
   },
   {
     name: 'Scout ahead',
     file: 'scout-ahead.ts',
     kind: 'scout' as SkillKind,
-    body: 'Runs ahead and tells you what is out there. The useful part is that it can describe what it is looking at without stopping to do it.',
+    body: 'agartha runs ahead and tells you what is out there. The useful part: describing the view happens without stopping to do it.',
   },
   {
     name: 'Craft',
     file: 'craft.ts',
     kind: 'craft' as SkillKind,
-    body: 'Hand-rolled 3x3 crafting, written around a mineflayer quirk on 1.20.6. Inherited and deliberately left alone, because rewriting it just earns the bug back.',
+    body: 'Hand-rolled 3x3 crafting, written around a mineflayer quirk on 1.20.6. Inherited and deliberately left alone, because a rewrite just earns the bug back.',
   },
 ] as const;
 
