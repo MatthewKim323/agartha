@@ -1,12 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import RevealText, { RevealLines } from '@/components/RevealText';
 import CountUp from '@/components/CountUp';
-
-if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 // The market argument, stated as a gap rather than a TAM.
 //
@@ -25,30 +20,9 @@ const COMPANIONS = [
 ];
 
 export default function TheGap() {
-  const root = useRef<HTMLDivElement>(null);
-  const [turned, setTurned] = useState(false);
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setTurned(true);
-      return;
-    }
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 55%',
-        once: true,
-        onEnter: () => setTurned(true),
-      });
-    }, el);
-    return () => ctx.revert();
-  }, []);
-
   return (
     <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
-      <div ref={root} className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl">
         <p className="font-mono text-[12px] tracking-widest text-white/40">
           THE GAP
         </p>
@@ -91,24 +65,6 @@ export default function TheGap() {
           industry trackers. Registered accounts are a softer measure than
           monthly actives, and they are labelled that way here on purpose.
         </p>
-
-        {/* The turn. */}
-        <div
-          className="mt-10 border-t border-white/10 pt-10 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-          style={{
-            opacity: turned ? 1 : 0,
-            transform: turned ? 'translateY(0)' : 'translateY(18px)',
-          }}
-        >
-          <p className="max-w-4xl text-[28px] leading-[1.32] font-medium tracking-[-0.03em] text-white md:text-[38px]">
-            Not one of them can hand you a pickaxe.
-          </p>
-          <p className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-white/55">
-            agar shows up in the world with you. Not a chat window asking
-            how your day went, but a second player standing next to you who
-            says &ldquo;on it&rdquo; and goes.
-          </p>
-        </div>
       </div>
     </section>
   );
