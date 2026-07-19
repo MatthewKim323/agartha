@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+*.log
+
+# Licensed typeface (Canela, Commercial Type) — used under the project's own
+# licence, not redistributed here. The footer falls back to a serif without it.
+app/fonts/

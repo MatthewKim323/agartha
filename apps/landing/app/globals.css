@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+
+/* Tokens carry the reference palette under semantic names. The capture stored
+   these as opaque Framer UUIDs (--token-c3d568f8-...), which are unreadable in
+   markup, so they're renamed here by role and the hex values kept exact. */
+@theme {
+  --color-paper: #f4f4f2;
+  --color-ink: #171717;
+  --color-muted: #595959;
+  --color-faint: #858585;
+  --color-line: #e4e4e4;
+  --color-surface: #1e1e1f;
+  --color-surface-2: #29292b;
+  --color-accent: #c8fa00;
+  --color-blue: #003bf0;
+
+  /* Captured families: Geist (296 uses) for sans, Space Mono (70) for mono.
+     The first build guessed Inter + IBM Plex Mono, which sit noticeably
+     differently, Geist is tighter and more geometric at display sizes. */
+  --font-sans: Geist, "Geist Placeholder", sans-serif;
+  --font-mono: "Space Mono", monospace;
+  --font-canela: var(--font-canela), Canela, 'Times New Roman', serif;
+
+  /* Type scale, from tokens/typography.json by usage count. */
+  --text-display: 192px;   /* hero, x15 */
+  --text-h1: 64px;         /* x7 */
+  --text-h2: 48px;         /* x5 */
+  --text-h3: 32px;         /* x63 */
+  --text-h4: 24px;         /* x65 */
+  --text-body: 16px;       /* x36 */
+  --text-body-sm: 15px;    /* x31 */
+  --text-label: 12px;      /* x941, the mono labels carry the page */
+  --text-label-sm: 11px;   /* x19 */
+
+  /* Line heights as captured, expressed as ratios against their size.
+     153.6/192 = 0.8 display, 38.4/32 = 1.2 headings, 25.92/16 = 1.62 body. */
+  --leading-display: 0.8;
+  --leading-heading: 1.2;
+  --leading-body: 1.62;
+
+  /* Tracking, converted from the capture's pixel values to em so it holds at
+     every size. The scale tightens as type grows, which is why a single
+     tracking value across headings read wrong: -13.44px at 192px is -0.07em,
+     but -0.72px at 24px is only -0.03em. */
+  --tracking-display: -0.07em; /* 192px */
+  --tracking-h1: -0.06em;      /* 64px  */
+  --tracking-h2: -0.04em;      /* 48px  */
+  --tracking-h3: -0.04em;      /* 32px  */
+  --tracking-h4: -0.03em;      /* 24px  */
+
+  /* Mirrors lib/motion.ts so CSS-driven transitions match JS-driven ones. */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.08, 0.78, 0.56, 1);
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Lenis drives scroll position, so the browser must not also animate it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Respect reduced-motion: entrances resolve instantly rather than sliding.
+   Lenis is disabled separately in SmoothScroll.tsx. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Marquee. Two identical tracks sit side by side, so translating the pair by
+   half its width lands exactly on the seam and the loop is invisible. */
+@keyframes ticker {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Quantized state blink for the reflex-loop grid. Deliberately `steps()` with
+   no easing: a data element that eases reads as decoration, and this one is
+   meant to read as sampling. */
+@keyframes tick-on {
+  0%, 45%   { opacity: 1; }
+  46%, 100% { opacity: 0.18; }
+}
+
+/* Card lift. Small enough to register as responsiveness rather than movement;
+   transform only, so it never triggers layout. */
+.card-lift {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+}
+/* Buttons acknowledge the press. */
+button:active,
+a:active {
+  transform: scale(0.985);
+}
