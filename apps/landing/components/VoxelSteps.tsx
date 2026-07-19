@@ -108,17 +108,35 @@ export default function VoxelSteps({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      // Fit: the run spans (count-1) steps diagonally, so derive the unit from
-      // whichever axis binds first, then centre what results.
+      // Fit, accounting for everything that actually gets drawn — not just the
+      // staircase. The rolling block hops above its step and the active step
+      // rises, so a fit computed from the stairs alone clipped the art on every
+      // edge at the end of the track.
       const runX = (count - 1) * 1.55;
       const runY = (count - 1) * 0.9;
-      const fitW = (w * 0.98) / (runX * BASE_TW * 2 + BASE_TW * 2);
-      const fitH = (h * 0.94) / (runY * BASE_TH * 2 + BASE_LIFT * 2 + BASE_TH * 2);
-      const k = Math.max(0.6, Math.min(fitW, fitH) * 2);
+
+      // Extents in base units, measured from the origin cube's top vertex.
+      const spanXu = runX * BASE_TW + BASE_TW * 2; // half-widths either side
+      const spanYu =
+        runY * BASE_TH + // the descent
+        BASE_TH * 2 + // origin cube's top face
+        BASE_LIFT + // its side
+        16 + // active-step rise
+        BASE_TH * 2.1 + // hop apex above the step
+        BASE_LIFT * 0.5; // rolling cube's own height
+
+      const k = Math.max(
+        0.5,
+        Math.min((w * 0.88) / spanXu, (h * 0.86) / spanYu),
+      );
       const TW = BASE_TW * k, TH = BASE_TH * k, LIFT = BASE_LIFT * k;
 
+      // Centre the *drawn* bounds rather than the stair run, so the headroom
+      // reserved above is not simply dead space at the bottom.
+      const headroom = (BASE_TH * 2.1 + BASE_LIFT * 0.5 + 16) * k;
       const originX = w * 0.5 + runX * TW * 0.5;
-      const originY = h * 0.5 - runY * TH * 0.5 - LIFT * 0.5;
+      const originY =
+        h * 0.5 - (runY * TH + TH * 2 + LIFT) * 0.5 + headroom * 0.5;
 
       const cur = activeRef.current;
       const at = (n: number) => ({

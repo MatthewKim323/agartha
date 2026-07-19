@@ -44,12 +44,20 @@ function DisplayWord({
   drift: MotionValue<number>;
 }) {
   return (
-    <span className="block overflow-hidden pb-[0.06em]">
+    <span
+      className="block overflow-hidden pb-[0.06em]"
+      // Perspective on the clipping parent, so the rise below can tip in 3D
+      // without the mask itself tilting.
+      style={{ perspective: 700 }}
+    >
       <motion.span
-        className="block"
+        className="block origin-bottom"
         style={{ x: drift }}
-        initial={{ y: '110%' }}
-        animate={{ y: '0%' }}
+        // The mask alone was a flat slide. Tipping the word forward and
+        // resolving a small blur as it lands gives it somewhere to arrive from
+        // — the difference between text appearing and text being placed.
+        initial={{ y: '110%', rotateX: -34, filter: 'blur(10px)', opacity: 0.001 }}
+        animate={{ y: '0%', rotateX: 0, filter: 'blur(0px)', opacity: 1 }}
         transition={{ duration: DUR.slow, ease: EASE.expo, delay }}
       >
         {children}
