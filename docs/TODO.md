@@ -14,20 +14,18 @@ sessions, so a stale entry here is worse than no entry.
 
 ## OPEN
 
-### 1. Record real voice latency numbers
-**id:** measure-voice · **priority:** highest · **blocked by:** nothing
+### 1. Verify the voice numbers over real Discord audio
+**id:** measure-voice-discord · **priority:** medium · **blocked by:** nothing
 
-`docs/MEASUREMENTS.md` still says voice latency is UNVERIFIED. It isn't anymore
-— matt confirmed the loop works live. Turn that into a number.
+The bench numbers are in (`docs/MEASUREMENTS.md`, 2026-07-19: 1828ms p50 first
+audio, 1763ms p50 first tool, 5/5 dispatch) but the bench streams a WAV straight
+into the Live session. It does not go through Discord's opus decode, the
+receiver's frame timing, or the playback path back out.
 
-```bash
-say -v Samantha -o speech.wav --data-format=LEI16@16000 "yo can you chop that tree for me"
-bun --env-file=.env apps/voice-agent/bench.ts speech.wav --runs 5
-```
-
-Record p50/p95 for first-audio and first-tool, then delete the UNVERIFIED rows.
-Highest value per minute in the whole list: Technical Execution is 25% of the
-judging score and this is the headline claim.
+Instrument the same two timestamps in `apps/voice-agent/src/index.ts` and log
+them during a real call, so the demo claim is measured on the path the demo
+actually uses. Expect it to be slower, not faster. If it is much slower, that
+gap is a real bug and worth finding before the demo.
 
 ### 2. Fix crafting latency
 **id:** fix-crafting · **priority:** high · **blocked by:** nothing
@@ -47,7 +45,7 @@ Good story for the writeup: the agent surfaced this weakness itself via
 `tool_reliability` (0% success, 2400ms avg) and we fixed what it reported.
 
 ### 3. Record the demo video and rehearse
-**id:** demo-video · **priority:** high · **blocked by:** measure-voice, fix-crafting
+**id:** demo-video · **priority:** high · **blocked by:** fix-crafting
 
 Product Experience is 20% and the demo IS the product. Run:
 
@@ -108,6 +106,11 @@ including verified stats and an explicit do-not-claim list.
 
 ## RECENTLY DONE (don't redo)
 
+- **Voice latency measured** (2026-07-19): 1828ms p50 first audio, 1763ms p50
+  first tool, 5/5 dispatch, and the tool call beats the audio out in 3 of 5
+  runs. Also proved Gemini's VAD needs >300ms of trailing silence (at 300ms the
+  turn never closes) and that past ~600ms extra silence buys nothing. The 600ms
+  first-audio target is dead: ~1.2-1.5s of the 1.8s is Gemini Live itself.
 - Voice loop confirmed working live by matt (user-confirmed, not yet instrumented)
 - Proactive presence — 8 world triggers reach the voice agent, it speaks first
 - Episodic memory on InsForge + `history()` self-query tool

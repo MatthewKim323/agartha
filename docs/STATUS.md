@@ -50,9 +50,9 @@ Last updated: 2026-07-19, after proactive presence shipped.
 
 ## Next, in priority order
 
-1. **Fill in real voice numbers** — `docs/MEASUREMENTS.md` still says voice is
-   UNVERIFIED. It works now. Run `apps/voice-agent/bench.ts --runs 5` and record
-   p50/p95. Highest value per minute: Technical Execution is 25% of the score.
+1. ~~Fill in real voice numbers~~ **done 2026-07-19.** 1828ms p50 first audio,
+   1763ms p50 first tool, 5/5 dispatch. What's left is verifying the same two
+   numbers over real Discord audio rather than a WAV fed straight in.
 2. **Crafting latency** — ~450ms of blind `settle()` sleeps × item count in
    `controller.ts:craftAtTable`. Replace with event-driven waits; drop the
    redundant per-item loop (shift-clicking the output crafts the max already).

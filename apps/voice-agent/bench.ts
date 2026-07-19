@@ -191,10 +191,10 @@ if (tool.length) {
 } else console.log("first tool call: none");
 const tx = results.map((r) => r.transcriptMs).filter((v): v is number => v !== null).sort((a, b) => a - b);
 if (tx.length) {
-  // Input transcription lands once Gemini has decided the turn is over, so this
-  // is the closest observable proxy for endpointing cost. Everything after it
-  // is model time; everything before it is VAD waiting to hear silence.
-  console.log(`first transcript:  p50 ${percentile(tx, 50)}ms (endpointing proxy)`);
+  // Negative, and it should be: input transcription streams in WHILE you talk,
+  // it does not wait for the turn to close. Useful as a liveness check on the
+  // input path, not as a measure of endpointing.
+  console.log(`first partial transcript: p50 ${percentile(tx, 50)}ms (negative = arrived mid-speech)`);
 }
 console.log(`\ntool call rate: ${results.filter((r) => r.tools.length > 0).length}/${results.length} runs`);
 

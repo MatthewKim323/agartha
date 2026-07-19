@@ -72,7 +72,7 @@ These are real, taken from a live server and a live API. They're in
 | voice → action dispatch | ~10s (spawned a CLI agent per reaction) | **1-15ms** (median 3) |
 | memory retrieval | 1.3-4.0s | **13-69ms** (0ms cached) |
 | reflex loop | — | **15Hz**, 67ms/tick, no LLM |
-| time to first audio | 6.5-13s | **~1.6s** |
+| time to first audio | 6.5-13s | **1.8s p50** |
 
 Verified in-world, not just at the API boundary:
 
@@ -119,7 +119,7 @@ not the product. Lead with the companion, show the game.
 2. **The gap** — companion apps are text boxes. Big user numbers, then the
    turn: none of them can *do* anything.
 3. **What it does** — three beats, each with the real latency:
-   - hears you and answers (~1.6s)
+   - hears you and answers (1.8s p50, measured)
    - acts while still talking (3ms dispatch)
    - remembers you across months (345ms recall, real example)
 4. **How it works** — the three-lane diagram. Keep it visual, one sentence per
@@ -152,8 +152,12 @@ Bad: *"leveraging cutting-edge real-time AI to revolutionize companionship."*
 - shares one identity with an agent that has been running since May
 
 **Do NOT claim:**
-- "sub-second voice." It's ~1.6s to first audio. Say "about a second" or give
-  the real number. Do not round in our favour.
+- "sub-second voice." Measured p50 is 1828ms. Say "under two seconds" or give the
+  real number. Do not round in our favour, and do not say "about a second".
+- "we hit our 600ms target." We did not. ~1.2-1.5s of the 1.8s is Gemini Live's
+  own generation time. The honest framing is stronger anyway: the *tool call*
+  lands at 1763ms p50, ahead of the first audio, so it starts moving before it
+  starts talking. That's the claim, and it's measured.
 - any market size figure (see above)
 - "AGI." Say what it does. The audience will draw their own conclusion, and
   they'll respect it more.

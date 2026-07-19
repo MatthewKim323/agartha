@@ -99,10 +99,23 @@ belongs in the reflection lane, which is off the speech path and can afford it.
 
 ## Voice
 
-**Not measured.** No `GEMINI_API_KEY` has been issued, so the Live session has
-never run. The pipeline is written and unit-tested but has never carried audio.
+Measured 2026-07-19 with `apps/voice-agent/bench.ts`, which streams a real WAV
+through the exact Live pipeline the Discord agent uses, paced in 20ms chunks
+like a mic. The bot was live on jabisonucsb.aternos.me:59754, so all 22 tools
+were declared and tool calls hit the real MCP server.
 
-For reference, the predecessor's voice path, from its own logs:
+Input: `say -v Samantha`, 3367ms of speech, "yo what's good bro can you go chop
+down that tree for me". **Everything below is measured from END OF SPEECH.**
+
+5 runs, 1000ms trailing silence:
+
+| | predecessor | agartha |
+|---|---|---|
+| first audio out | 6901-13011ms | **p50 1828ms**, p95 1883ms (1745-1883) |
+| first tool call | n/a (10s cooldown, CLI spawn) | **p50 1763ms**, p95 1883ms |
+| turns that called a tool | — | **5/5** |
+
+The predecessor numbers are from its own logs:
 
 ```
 first sentence @ 6901ms   replied @ 7244ms
@@ -111,7 +124,45 @@ first sentence @ 10599ms  replied @ 11102ms
 first sentence @ 13011ms  replied @ 13418ms
 ```
 
-6.5s to 13s to first audio. The target is under 600ms. That gap is the project.
+So 6.5-13s becomes ~1.8s. **The 600ms target was not met** and is not reachable
+on this architecture: see the decomposition below.
+
+### The tool call arrives BEFORE the first audio
+
+p50 first-tool 1763ms against p50 first-audio 1828ms. In 3 of 5 runs the
+`set_goal` landed first. That is the whole design claim, and it is the number
+to show: the hands start moving before the mouth does. `set_goal` returns in
+1ms, so the bot is pathing while the model is still generating its reply.
+
+### Where the 1.8s actually goes
+
+Trailing silence was varied to separate VAD endpointing from model time:
+
+| trailing silence | first audio (p50) | turns that closed |
+|---|---|---|
+| 300ms | **never** | 0/3 |
+| 600ms | 1835ms | 3/3 |
+| 1000ms | 1828ms | 5/5 |
+| 2000ms | 1884ms | 3/3 |
+
+Two things fall out of this:
+
+1. **Gemini's VAD needs more than 300ms of silence** to call a turn over. At
+   300ms it never responded at all and the transcript truncated mid-word
+   ("...can you go cho"). This is the same failure mode as the permanently-mute
+   bug, and it is why the input clock in `index.ts` is load-bearing.
+2. **Past ~600ms, more silence buys nothing.** First-audio is flat at ~1.8s
+   whether we send 600ms or 2000ms. So endpointing costs somewhere in
+   300-600ms, and the remaining ~1.2-1.5s is Gemini Live's own
+   speech-to-first-audio time, which is not ours to optimize.
+
+That is the honest ceiling: with a hosted realtime model in the loop, sub-600ms
+is not available. Getting under it would mean local VAD plus a local TTS
+first-syllable, which is a different project.
+
+Across all 14 runs, 11 closed the turn and 10 of those 11 called `set_goal`.
+One 600ms run produced audio but no tool call. n is small; see the tool-call
+reliability gap below.
 
 ## What is still unverified
 
@@ -127,17 +178,60 @@ first sentence @ 13011ms  replied @ 13418ms
 | audio conversion is correct | tested (integer ratios, frame sizes) |
 | persona loads jabby's real files | verified, all 4 files, 16k chars |
 | a Gemini Live session opens | verified (socket only) |
-| **voice-to-first-audio under 600ms** | **UNVERIFIED — audio has never flowed** |
-| **voice-to-action under 1s** | **UNVERIFIED — needs a Discord call** |
+| voice-to-first-audio | measured: p50 1828ms, 5 runs |
+| voice-to-first-tool-call | measured: p50 1763ms, 5/5 runs |
+| the tool call beats the audio out | measured (3 of 5 runs) |
+| ~~voice-to-first-audio under 600ms~~ | **not met, and not reachable** — 1.2-1.5s of the 1.8s is Gemini Live itself |
+| ~~voice-to-action under 1s~~ | **not met** — 1763ms p50 |
+| the same numbers hold over Discord audio | **UNVERIFIED** — bench streams a WAV straight in, it does not go through Discord's opus decode or the receiver's frame timing |
 
-Everything except the voice loop itself is now measured. The remaining gap is
-narrow and specific: audio in both directions, a tool call round-tripping from
-speech, and the latency of that path.
+### Combat, building and mining (added 2026-07-19)
+
+All of the below is logic-tested and typechecked, and **none of it has run
+against a live server**. Listing it honestly rather than letting the test count
+imply more than it proves.
+
+| Claim | Status |
+|---|---|
+| entity classification (hostile/passive/player) is correct | tested against minecraft-data shapes |
+| the owner cannot be attacked under any query | tested (4 query forms) |
+| every generated structure is emitted in a buildable order | tested (property test over all 6 shapes) |
+| skill enum rejects invented names | tested |
+| registry and schema cannot drift | asserted at import + tested |
+| confusable skills cross-reference each other | tested (caught 6 gaps) |
+| **the bot actually kills a cow** | **UNVERIFIED — never run in-world** |
+| **a `room` build completes on real terrain** | **UNVERIFIED** |
+| **placement reach/sneak/tick pacing hold on a real server** | **UNVERIFIED** |
+| **`digTunnel` doesn't walk into lava** | **UNVERIFIED — lava guard is untested code** |
+| **the voice model picks the right skill more often now** | **UNVERIFIED — needs a live eval** |
+
+The last one is the important caveat. The enum makes a *wrong name* impossible;
+it does not make the *right choice* certain. Proving the choice improved needs
+an eval against the live model on real utterances, which is the RunType work.
+
+Mineflayer behaviours the implementation depends on, verified against the 4.37
+source rather than assumed:
+
+- `placeBlock` does **no** reach check — an out-of-range attempt costs a silent
+  5000ms timeout, so range is enforced before the call (server limit is 4.5;
+  we use 4.0 for margin).
+- `blockAt` returns an air *block*, not `null`. `null` means the chunk is
+  unloaded. The old `placeBlock` null check could therefore never fire.
+- `placeBlock` null-dereferences on an unloaded destination before doing
+  anything, so the destination is checked first.
+- Placing against a chest/furnace/door opens its UI unless sneaking, and
+  mineflayer does not sneak for you (`generic_place.js` still has the TODO).
+- `grass` is `short_grass` since 1.20.3; the replaceable set carries both.
+
+The original stack — memory, dispatch, the reflex loop, one end-to-end goal —
+is measured. Two gaps remain, and they are different in kind: the voice loop has
+never carried audio, and the combat/build/mine work above has never touched a
+live server. The first is a latency question, the second is a correctness one.
 
 ## Reproducing
 
 ```bash
-bun test                                  # 123 tests
+bun test                                  # 211 tests
 bunx tsc --noEmit -p tsconfig.base.json   # zero errors
 ```
 

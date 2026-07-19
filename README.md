@@ -43,7 +43,7 @@ A goal kicked off by voice returns *immediately* and reports completion later. S
 
 Early. Building in dependency order, one commit per step. See `docs/ARCHITECTURE.md` for the full plan and `docs/DECISIONS.md` for what was chosen and why.
 
-The demo gate is task 13: say "come chop that tree" and have audio start under 600ms with the bot pathing under a second.
+The demo gate was "say 'come chop that tree' and have audio start under 600ms with the bot pathing under a second." Measured 2026-07-19: first audio 1828ms p50, first tool call 1763ms p50, 5/5 turns dispatched. The 600ms half was missed and is not reachable with a hosted realtime model in the loop; the tool call beating the audio out is the part that mattered. Full breakdown in `docs/MEASUREMENTS.md`.
 
 ## Lineage
 

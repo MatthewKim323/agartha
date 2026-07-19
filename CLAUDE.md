@@ -11,7 +11,7 @@
 ## What this is
 
 An AI companion with two months of real memory that plays Minecraft with matt.
-You talk to it out loud, it answers in ~1.6s, and its hands are already moving
+You talk to it out loud, it answers in ~1.8s, and its hands are already moving
 while it's still talking. It shares a brain with **jabby**, matt's always-on
 Discord agent, so it knows who he is.
 
@@ -26,7 +26,7 @@ at 20% each, Business Potential 15%.
 | lane | budget | what runs there |
 |---|---|---|
 | reflex | 66ms (15Hz) | follow, safety, lava, auto-eat. No LLM, ever. |
-| conversation | ~1.6s | Gemini Live. Tools dispatch directly. Thinking DISABLED. |
+| conversation | ~1.8s | Gemini Live. Tools dispatch directly. Thinking DISABLED. |
 | reflection | seconds, async | memory, telemetry, planning. Never blocks a word. |
 
 If a change would put a network hop, a process spawn, or a thinking budget in
@@ -42,7 +42,7 @@ performance number that isn't in there.
 | tool dispatch | ~10s (CLI spawn per reaction) | **1-15ms** (median 3) |
 | memory recall | 1.3-4.0s | **13-69ms** (0ms cached) |
 | reflex loop | — | **15Hz**, 67ms/tick |
-| voice → first audio | 6.5-13s | **~1.6s** |
+| voice → first audio | 6.5-13s | **1.8s p50** (measured, 5 runs) |
 
 ## Layout
 
