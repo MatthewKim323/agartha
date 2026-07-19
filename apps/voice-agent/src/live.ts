@@ -98,7 +98,15 @@ export class LiveSession {
   }
 
   private async handle(msg: unknown): Promise<void> {
+    // Log the shape of anything unrecognized. A silent agent is usually the
+    // model sending something this switch quietly ignores, and without this
+    // there is no way to tell that from "no audio ever arrived".
+    if (process.env.LOG_LEVEL === "debug") {
+      log.debug("msg keys:", Object.keys(msg as object).join(","));
+    }
     const m = msg as {
+      setupComplete?: unknown;
+      goAway?: { timeLeft?: string };
       serverContent?: {
         interrupted?: boolean;
         inputTranscription?: { text?: string };
@@ -106,6 +114,11 @@ export class LiveSession {
       };
       toolCall?: { functionCalls?: Array<{ id?: string; name?: string; args?: Record<string, unknown> }> };
     };
+
+    // setupComplete is the handshake ack: if this never arrives, the session
+    // opened but the model is not actually listening.
+    if (m.setupComplete !== undefined) log.info("setup complete — model is listening");
+    if (m.goAway) log.warn(`server going away in ${m.goAway.timeLeft ?? "?"} — session will need to reconnect`);
 
     if (m.serverContent?.interrupted) this.opts.callbacks.onInterrupted();
 

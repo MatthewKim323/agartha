@@ -76,7 +76,13 @@ cleanup() {
 trap cleanup INT TERM
 
 # Bot first: the voice agent discovers its tools at connect.
-bun --env-file=.env apps/mc-bot/src/index.ts 2>&1 | sed -l "s/^/${GRN}[bot]${OFF}  /" &
+mkdir -p .logs
+: > .logs/bot.log
+: > .logs/voice.log
+echo "${DIM}logs: .logs/bot.log  .logs/voice.log${OFF}"
+echo
+
+bun --env-file=.env apps/mc-bot/src/index.ts 2>&1 | tee .logs/bot.log | sed -l "s/^/${GRN}[bot]${OFF}  /" &
 pids+=($!)
 
 # Give the bot time to spawn and bind MCP before the agent looks for tools.
@@ -86,7 +92,7 @@ until curl -sf -m 2 "http://127.0.0.1:${MCP_PORT:-3001}/health" >/dev/null 2>&1;
 done
 echo "${GRN}[bot]${OFF}  MCP ready"
 
-node --env-file=.env --import tsx apps/voice-agent/src/index.ts 2>&1 | sed -l "s/^/${YEL}[voice]${OFF} /" &
+node --env-file=.env --import tsx apps/voice-agent/src/index.ts 2>&1 | tee .logs/voice.log | sed -l "s/^/${YEL}[voice]${OFF} /" &
 pids+=($!)
 
 wait

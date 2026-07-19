@@ -45,12 +45,17 @@ function status(host: string, port: number, timeoutMs = 8000): Promise<string> {
 
     sock.on("connect", () => {
       // Handshake: protocol 765 (1.20.6), next state 1 = status.
-      const hs = Buffer.concat([varint(765), mcString(host), Buffer.from([port >> 8, port & 0xff]), varint(1)]);
+      const hs = Buffer.concat([
+        varint(765),
+        mcString(host),
+        Buffer.from([port >> 8, port & 0xff]),
+        varint(1),
+      ] as unknown as readonly Uint8Array[]);
       sock.write(packet(0x00, hs));
       sock.write(packet(0x00, Buffer.alloc(0)));
     });
-    sock.on("data", (d) => {
-      buf = Buffer.concat([buf, d]);
+    sock.on("data", (d: Buffer) => {
+      buf = Buffer.concat([buf, d] as unknown as readonly Uint8Array[]);
       const text = buf.toString("utf8");
       const i = text.indexOf("{");
       if (i >= 0 && text.length - i > 40) {

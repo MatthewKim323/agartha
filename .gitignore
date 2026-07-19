@@ -31,3 +31,6 @@ out/
 .idea/
 .vscode/
 *.swp
+
+# demo logs
+.logs/

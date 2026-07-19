@@ -83,7 +83,29 @@ async function main(): Promise<void> {
   const exchanges: SessionExchange[] = [];
   const toolsUsed: string[] = [];
 
-  const hub = new VoiceHub((pcm48) => live.sendAudio(discordToModel(pcm48)));
+  /**
+   * Audio-path counters.
+   *
+   * Without these, "it isn't talking back" is undiagnosable: you cannot tell
+   * whether the mic is silent, the model never answered, or playback is
+   * dropping. Each stage gets a counter and they print together, so the first
+   * zero in the chain tells you where it broke.
+   */
+  const stats = { micFrames: 0, micBytes: 0, modelChunks: 0, modelBytes: 0, transcripts: 0, tools: 0 };
+  let lastReport = "";
+  setInterval(() => {
+    const line = `mic ${stats.micFrames}f/${Math.round(stats.micBytes / 1024)}kb | model ${stats.modelChunks}c/${Math.round(stats.modelBytes / 1024)}kb | transcripts ${stats.transcripts} | tools ${stats.tools}`;
+    if (line !== lastReport) {
+      log.info(`audio: ${line}`);
+      lastReport = line;
+    }
+  }, 5000);
+
+  const hub = new VoiceHub((pcm48) => {
+    stats.micFrames++;
+    stats.micBytes += pcm48.length;
+    live.sendAudio(discordToModel(pcm48));
+  });
 
   const turns = new TurnQueue(async (text) => {
     exchanges.push({ who: "matt", said: text });
@@ -119,14 +141,23 @@ async function main(): Promise<void> {
     systemInstruction: persona.text,
     tools: mc.functionDeclarations,
     callbacks: {
-      onAudio: (pcm) => hub.play(modelToDiscord(pcm, OUTPUT_SAMPLE_RATE)),
+      onAudio: (pcm) => {
+        stats.modelChunks++;
+        stats.modelBytes += pcm.length;
+        hub.play(modelToDiscord(pcm, OUTPUT_SAMPLE_RATE));
+      },
       onInterrupted: () => hub.flush(),
-      onUserTranscript: (text) => turns.push(text),
+      onUserTranscript: (text) => {
+        stats.transcripts++;
+        log.info(`heard: "${text}"`);
+        turns.push(text);
+      },
       onToolCall: async (name, args) => {
         const t = startTrace("tool");
         const result = await mc.call(name, args);
         t.mark("dispatched");
         t.end("ok");
+        stats.tools++;
         toolsUsed.push(name);
         // Attach the action to the utterance that prompted it, so the session
         // page reads as cause and effect rather than two parallel lists.
@@ -147,9 +178,12 @@ async function main(): Promise<void> {
     // actionable instead.
     try {
       const guild = await discord.guilds.fetch(guildId);
+      const channel = await guild.channels.fetch(channelId).catch(() => null);
       await hub.join(guild, channelId);
       await live.start();
-      log.info("in the call");
+      // Name the channel explicitly: "in the call" is useless when you're
+      // staring at Discord wondering which one to click.
+      log.info(`>>> LISTENING in "${channel?.name ?? channelId}" (${guild.name}) — join that channel and talk <<<`);
     } catch (e) {
       log.error(`could not join voice: ${(e as Error).message}`);
       log.error(`guild=${guildId} channel=${channelId}`);
