@@ -20,6 +20,12 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 const logScale = (ms: number) => Math.log10(Math.max(ms, 1)) / Math.log10(4000);
 
 const COMPARISONS = [
+  // 6901ms is a real logged line from the predecessor's own output, not the
+  // midpoint of its 6.5-13s range. 1600 is the measured time to first audio
+  // now. Deliberately not rounded to "about a second": the brief is explicit
+  // that this number must not be rounded in our favour, and 1.6s is still the
+  // difference between waiting and being answered.
+  { label: 'Time to first audio', before: 6901, after: 1600 },
   { label: 'Cold memory lookup', before: 3980, after: 64 },
   { label: 'Warm lookup (median)', before: 1965, after: 25 },
   { label: 'Time to first tool call', before: 7244, after: 345 },
