@@ -71,6 +71,24 @@ export class LiveSession {
       config: {
         responseModalities: [Modality.AUDIO],
         systemInstruction: this.opts.systemInstruction,
+        // Thinking budget on the CONVERSATION lane. Measured 2026-07-18 on the
+        // same prompt ("can you chop a tree for me"):
+        //
+        //   default thinking : 2342ms to first audio, ZERO tool calls. It
+        //                      leaked markdown reasoning into speech
+        //                      ("**Initiating Tree-Chopping**") and NARRATED
+        //                      using set_goal instead of emitting the call.
+        //   thinkingBudget 0 : 1343ms to first audio, set_goal + speak
+        //                      dispatched at 1501ms.
+        //
+        // So on this lane thinking does not add reasoning, it replaces acting.
+        // Deep reasoning belongs in the reflection lane, which can take seconds
+        // because it is off the speech path. Override to experiment:
+        //   GEMINI_THINKING_BUDGET=1024
+        thinkingConfig: { thinkingBudget: Number(env("GEMINI_THINKING_BUDGET") ?? 0) },
+        // Lets us log what it actually said, which is otherwise invisible
+        // when the output is pure audio.
+        outputAudioTranscription: {},
         // Declared once. Gemini cannot swap these mid-session.
         //
         // Cast at the SDK boundary: these declarations originate as MCP JSON
@@ -110,7 +128,8 @@ export class LiveSession {
       serverContent?: {
         interrupted?: boolean;
         inputTranscription?: { text?: string };
-        modelTurn?: { parts?: Array<{ inlineData?: { data?: string } }> };
+        outputTranscription?: { text?: string };
+        modelTurn?: { parts?: Array<{ inlineData?: { data?: string }; text?: string; thought?: boolean }> };
       };
       toolCall?: { functionCalls?: Array<{ id?: string; name?: string; args?: Record<string, unknown> }> };
     };
@@ -126,9 +145,16 @@ export class LiveSession {
     if (transcript) this.opts.callbacks.onUserTranscript(transcript);
 
     for (const part of m.serverContent?.modelTurn?.parts ?? []) {
+      // Never speak a thought part. If a thinking budget is enabled, the model
+      // emits its reasoning as ordinary parts and it would be read aloud.
+      if (part.thought) continue;
       const b64 = part.inlineData?.data;
       if (b64) this.opts.callbacks.onAudio(Buffer.from(b64, "base64"));
     }
+
+    // What it actually said, which is otherwise invisible with audio output.
+    const spoken = m.serverContent?.outputTranscription?.text?.trim();
+    if (spoken) log.info(`said: "${spoken}"`);
 
     const calls = m.toolCall?.functionCalls ?? [];
     if (calls.length > 0) await this.dispatch(calls);
