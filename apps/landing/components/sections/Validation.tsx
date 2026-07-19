@@ -60,10 +60,6 @@ export default function Validation() {
           <TweetEmbed url="https://x.com/a16z/status/2022014770682245610" />
         </div>
 
-        <p className="mt-10 font-mono text-[11px] tracking-widest text-faint uppercase">
-          Public statement. No affiliation with a16z.
-        </p>
-
       </div>
     </section>
   );
