@@ -24,8 +24,8 @@ const BEATS = [
     v: 'A companion that sits inside the game a kid already plays, rather than another app beside it.',
   },
   {
-    k: 'The reason',
-    v: 'Who you play with shapes how you play. The ask was for something present and steady in that context.',
+    k: 'The thesis',
+    v: 'a16z has written publicly that AI will open a new category of games. This is the companion-shaped corner of it.',
   },
   {
     k: 'What we built',
@@ -37,8 +37,8 @@ export default function Validation() {
   return (
     <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
       <div className="mx-auto max-w-6xl">
-        <p className="font-mono text-[12px] tracking-widest text-white/40">
-          THE ASK
+        <p className="font-mono text-[12px] tracking-widest text-accent">
+          AN OPEN ASK FROM A16Z
         </p>
 
         <RevealLines
@@ -53,9 +53,17 @@ export default function Validation() {
           <blockquote className="text-[24px] leading-[1.45] font-medium tracking-[-0.02em] text-white md:text-[34px]">
             &ldquo;{QUOTE}&rdquo;
           </blockquote>
-          <figcaption className="mt-6 font-mono text-[11px] tracking-widest text-white/45 uppercase">
-            Anish Acharya, general partner at a16z · speaking publicly about a
-            product he wants to exist
+          <figcaption className="mt-8">
+            <span className="block text-[18px] font-medium text-white md:text-[20px]">
+              Anish Acharya
+            </span>
+            <span className="mt-1 block font-mono text-[12px] tracking-widest text-white/50 uppercase">
+              General Partner, a16z
+            </span>
+            <span className="mt-3 block max-w-[46ch] text-[14px] leading-[1.55] text-white/40">
+              Describing a product he wants someone to build, publicly, before
+              agartha existed.
+            </span>
           </figcaption>
         </figure>
 
