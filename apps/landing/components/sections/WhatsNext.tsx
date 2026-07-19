@@ -9,9 +9,14 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 // Answers the obvious objection: isn't this just a Minecraft bot?
 //
-// The honest answer is that the Minecraft layer is the thin part. What sits
-// behind it is a typed control surface, and the brain has never known what is
-// on the other side of it. Swapping the body is a port, not a rewrite.
+// The answer is that Minecraft is where this was proven, not what it is. The
+// companion meets the world through one typed control surface and never learns
+// which world is behind it, so new environments are additive rather than
+// rebuilds.
+//
+// Framing note: an earlier version of this section led with how quickly the
+// Minecraft layer came together. That undersold the product to anyone reading
+// for substance, and pointed at provenance instead of at reach.
 //
 // Careful framing: Minecraft is the only environment where this has actually
 // run. Everything to the right of it is stated as a shape the architecture
@@ -85,16 +90,17 @@ export default function WhatsNext() {
           as="h2"
           className="mt-5 max-w-3xl text-[42px] leading-[1.18] font-medium tracking-[-0.04em] text-ink md:text-[56px]"
           duration={1}
-          lines={['The Minecraft part', 'took one night']}
+          lines={['Minecraft is where', 'we proved it']}
         />
 
         <RevealLines
           className="mt-7 max-w-2xl text-[16px] leading-[1.62] text-muted"
           delay={0.1}
           lines={[
-            'What took the work is that the brain and the body meet at one',
-            'typed interface, and the brain has never known what is on the',
-            'other side of it. Swapping bodies is a port, not a rewrite.',
+            'agartha meets the world through a single typed interface and',
+            'never learns which world is on the other side. The companion,',
+            'the voice and the memory stay exactly as they are. Only the',
+            'body changes.',
           ]}
         />
 
