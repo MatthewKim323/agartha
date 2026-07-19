@@ -55,9 +55,28 @@ else
   warn "gbrain down — running without memory"
 fi
 
-# 4. Nothing already squatting the MCP port.
+# 4. Nothing already squatting the MCP port. A previous run that was killed
+#    rather than stopped cleanly leaves the bot holding it. Reclaim OUR OWN
+#    stale process automatically; refuse to touch anything else.
 if lsof -nP -iTCP:"${MCP_PORT:-3001}" -sTCP:LISTEN >/dev/null 2>&1; then
-  die "something is already listening on ${MCP_PORT:-3001} (an old bot?). kill it first."
+  stale=$(pgrep -f "apps/mc-bot/src/index.ts" || true)
+  if [ -n "$stale" ]; then
+    warn "reclaiming stale agartha bot (pid $(echo "$stale" | tr '\n' ' '))"
+    # shellcheck disable=SC2086
+    kill $stale 2>/dev/null
+    for _ in $(seq 1 10); do
+      lsof -nP -iTCP:"${MCP_PORT:-3001}" -sTCP:LISTEN >/dev/null 2>&1 || break
+      sleep 1
+    done
+    # shellcheck disable=SC2086
+    lsof -nP -iTCP:"${MCP_PORT:-3001}" -sTCP:LISTEN >/dev/null 2>&1 && kill -9 $stale 2>/dev/null
+    sleep 1
+  fi
+  if lsof -nP -iTCP:"${MCP_PORT:-3001}" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "  ${RED}FAIL${OFF} port ${MCP_PORT:-3001} is held by something that isn't an agartha bot:"
+    lsof -nP -iTCP:"${MCP_PORT:-3001}" -sTCP:LISTEN 2>/dev/null | tail -n +2 | sed 's/^/       /'
+    exit 1
+  fi
 fi
 ok "port ${MCP_PORT:-3001} free"
 
