@@ -169,7 +169,7 @@ async function runOnce(i: number): Promise<Result> {
     said: said.trim(),
   };
   console.log(
-    `run ${i + 1}: audio ${r.firstAudioMs ?? "—"}ms | tool ${r.firstToolMs ?? "—"}ms (${r.tools.join(",") || "none"})`,
+    `run ${i + 1}: audio ${r.firstAudioMs ?? "—"}ms | tool ${r.firstToolMs ?? "—"}ms | transcript ${r.transcriptMs ?? "—"}ms (${r.tools.join(",") || "none"})`,
   );
   if (r.transcript) console.log(`        heard: "${r.transcript}"`);
   if (r.said) console.log(`        said:  "${r.said.slice(0, 100)}"`);
@@ -189,6 +189,13 @@ if (audio.length) {
 if (tool.length) {
   console.log(`first tool call: p50 ${percentile(tool, 50)}ms | p95 ${percentile(tool, 95)}ms`);
 } else console.log("first tool call: none");
+const tx = results.map((r) => r.transcriptMs).filter((v): v is number => v !== null).sort((a, b) => a - b);
+if (tx.length) {
+  // Input transcription lands once Gemini has decided the turn is over, so this
+  // is the closest observable proxy for endpointing cost. Everything after it
+  // is model time; everything before it is VAD waiting to hear silence.
+  console.log(`first transcript:  p50 ${percentile(tx, 50)}ms (endpointing proxy)`);
+}
 console.log(`\ntool call rate: ${results.filter((r) => r.tools.length > 0).length}/${results.length} runs`);
 
 await mc.close();

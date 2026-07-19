@@ -1,7 +1,12 @@
 # agartha
 
-Auto-loaded every session in this directory. Read `docs/STATUS.md` next for
-what's done and what's next.
+## Start of session: do this first
+
+1. Read **`docs/TODO.md`** and recreate the open items as tasks (TaskCreate),
+   applying the `blocked by` links. The in-session task list does not survive a
+   restart — that file is the one that does.
+2. Skim **`docs/STATUS.md`** for what already shipped and the known gaps.
+3. Keep both current as you work. A stale entry is worse than no entry.
 
 ## What this is
 

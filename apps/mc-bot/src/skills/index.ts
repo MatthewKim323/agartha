@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { RunSkillInput, type BotControl } from "@agartha/shared";
+import { RunSkillInput, SKILL_NAMES, suggestSkill, type BotControl } from "@agartha/shared";
 import type { Skill, SkillContext } from "./types.js";
 import { followPlayer } from "./follow-player.js";
 import { mineVein } from "./assist-mining.js";
@@ -10,8 +10,11 @@ import { hunt } from "./hunt.js";
 import { fetchItem } from "./fetch-item.js";
 import { scoutAhead } from "./scout-ahead.js";
 import { buildHelper } from "./build-helper.js";
+import { build } from "./build.js";
 import { craft, makeTools } from "./craft.js";
 import { mineDown } from "./mine-down.js";
+import { tunnel } from "./tunnel.js";
+import { gather } from "./gather.js";
 import { giveItem } from "./give-item.js";
 import { inventoryReport } from "./inventory-report.js";
 import { logger } from "../util/logger.js";
@@ -29,14 +32,42 @@ export const SKILLS: Skill[] = [
   fetchItem,
   scoutAhead,
   buildHelper,
+  build,
   craft,
   makeTools,
   mineDown,
+  tunnel,
+  gather,
   giveItem,
   inventoryReport,
 ];
 
 const REGISTRY = new Map(SKILLS.map((s) => [s.name, s]));
+
+/**
+ * The registry and the schema enum must describe the same set. If they drift,
+ * the model is handed an enum containing a skill that doesn't exist (it calls
+ * it, gets "unknown skill", after having already said "on it" out loud) or a
+ * skill exists that the model is structurally unable to name.
+ *
+ * Asserted at import so the process refuses to start rather than failing later
+ * in front of someone. `skills.test.ts` catches it at build time first.
+ */
+export function assertRegistryMatchesSchema(): void {
+  const registered = new Set(REGISTRY.keys());
+  const declared = new Set<string>(SKILL_NAMES);
+  const missing = [...declared].filter((n) => !registered.has(n));
+  const extra = [...registered].filter((n) => !declared.has(n));
+  if (missing.length > 0 || extra.length > 0) {
+    throw new Error(
+      `skill registry/schema mismatch — ` +
+        `declared but not implemented: [${missing.join(", ")}]; ` +
+        `implemented but not declared: [${extra.join(", ")}]`,
+    );
+  }
+}
+
+assertRegistryMatchesSchema();
 
 /**
  * Run a skill by name. The single execution path used by BOTH the `run_skill`
@@ -49,7 +80,16 @@ export async function runSkillByName(
   args?: Record<string, unknown>,
 ): Promise<string> {
   const skill = REGISTRY.get(name);
-  if (!skill) throw new Error(`unknown skill: ${name}`);
+  if (!skill) {
+    // Teach the caller the right name in one turn rather than just refusing.
+    // The enum should make this unreachable from the voice model, but the MCP
+    // surface is callable by anything.
+    const near = suggestSkill(name);
+    throw new Error(
+      `unknown skill: ${name}${near ? ` — did you mean ${near}?` : ""}. ` +
+        `valid: ${SKILL_NAMES.join(", ")}`,
+    );
+  }
   return skill.run(ctx, args);
 }
 

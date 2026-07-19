@@ -116,4 +116,34 @@ export interface BotControl {
 
   /** Current dimension string ("overworld" | "the_nether" | "the_end"). */
   dimension(): string;
+
+  // ── Building ─────────────────────────────────────────────────────────────
+
+  /** Block name at a coord ("air", "stone"), or null if the chunk isn't loaded. */
+  blockNameAt(pos: Vec3Lit): string | null;
+
+  /** Can a block be placed into this position — is it air/water/grass/replaceable? */
+  isFree(pos: Vec3Lit): boolean;
+
+  /**
+   * Settle a coord onto the ground: scan for the surface near `pos` and return
+   * the first free position resting on solid ground. Null if there isn't one.
+   * Without this, structures build floating in the air or buried in a hillside.
+   */
+  findGround(pos: Vec3Lit): Vec3Lit | null;
+
+  /**
+   * Place a batch of blocks IN THE GIVEN ORDER, pathing into reach for each.
+   * Order matters — a block can only be placed against an existing face, so the
+   * caller is expected to have ordered the list (see skills/_structures.ts).
+   */
+  placeMany(placements: Array<{ pos: Vec3Lit; item: string }>): Promise<{
+    placed: number;
+    /** Already solid — not a failure, nothing to do. */
+    skipped: number;
+    failed: number;
+  }>;
+
+  /** Dig a horizontal 1x2 corridor in the facing direction. Returns blocks mined. */
+  digTunnel(length: number, opts?: { torchEvery?: number }): Promise<number>;
 }

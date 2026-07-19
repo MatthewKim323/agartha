@@ -8,7 +8,10 @@ import { runWithTask } from "./types.js";
  */
 export const mineDown: Skill = {
   name: "mine_down",
-  description: "Dig a staircase downward to go mining for stone/ores. Optional { steps } (default 12).",
+  description:
+    "Dig a staircase DOWNWARD to reach the ore layer. { steps } (default 12). USE THIS for 'dig down', " +
+    "'let's go mining', 'find a cave'. To clear a vein you can already see, use mine_vein. To dig " +
+    "sideways once you're down there, use tunnel.",
   async run(ctx, args) {
     const steps = typeof args?.steps === "number" ? args.steps : 12;
     return runWithTask(ctx, async () => {

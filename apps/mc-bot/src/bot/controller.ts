@@ -24,6 +24,46 @@ const toLit = (v: { x: number; y: number; z: number }): Vec3Lit => ({
   z: round(v.z),
 });
 
+/**
+ * Blocks a new block can be placed INTO.
+ *
+ * Name-based rather than `boundingBox === 'empty'`, because empty is necessary
+ * but not sufficient — torch, fire, seagrass and vine are all `empty` and the
+ * server will not let you place into them the way it lets you place into air.
+ *
+ * `short_grass`, not `grass`: it was renamed in 1.20.3, and `blocksByName.grass`
+ * is undefined on 1.20.6. Both are listed so this survives either version.
+ */
+const REPLACEABLE = new Set([
+  "air", "cave_air", "void_air",
+  "water", "lava",
+  "short_grass", "grass", "tall_grass", "fern", "large_fern",
+  "snow", "dead_bush", "seagrass", "structure_void",
+]);
+
+/**
+ * Placement reach we enforce ourselves, in blocks.
+ *
+ * Mineflayer does NO reach check on placement — it sends the packet regardless,
+ * the server silently drops it, and we then eat the full 5000ms
+ * `blockUpdate did not fire` timeout. On a 180-block structure a handful of
+ * out-of-range attempts is minutes of dead time, so range is checked here where
+ * it's free. The 1.20.5+ server limit is 4.5 (block_interaction_range); 4.0
+ * leaves margin for the bot drifting mid-place.
+ */
+const PLACE_REACH = 4.0;
+
+/** Ticks to wait between placements. Below ~2 ticks the server starts dropping them. */
+const PLACE_TICKS = 2;
+
+/**
+ * Cap on a single placement. Mineflayer's own timeout is 5000ms, which is a very
+ * long time to be wrong about one block. We fail faster and let the caller move
+ * on; the next pass re-reads the world, so a placement that lands late is picked
+ * up as "already solid" rather than double-placed.
+ */
+const PLACE_TIMEOUT_MS = 2500;
+
 /** Block names treated as the "any_stone" group. */
 const STONE_NAMES = new Set([
   "stone", "cobblestone", "deepslate", "cobbled_deepslate", "andesite",
@@ -123,11 +163,216 @@ export class BotController implements BotControl {
     await this.bot.dig(block);
   }
 
+  /**
+   * Place a block at `pos`.
+   *
+   * The previous version hardcoded the reference to `pos.y - 1` with face
+   * (0,1,0), which meant it could ONLY build upward off a block directly below.
+   * No side faces, so no walls extending outward, no overhangs, no roofs — and
+   * because `blockAt` returns an air *block* rather than null, its null check
+   * never fired and placing against air surfaced as a generic failure that
+   * build_helper then reported as "short on materials".
+   *
+   * It also never moved, so anything past arm's reach failed. Both fixed here:
+   * any of the six faces can be the reference, and the bot paths into range.
+   */
   async placeBlock(pos: Vec3Lit, item: string): Promise<void> {
-    const ref = this.bot.blockAt(new Vec3(pos.x, pos.y - 1, pos.z));
-    if (!ref) throw new Error("no reference block to place against");
-    await this.equip(item);
-    await this.bot.placeBlock(ref, new Vec3(0, 1, 0));
+    const target = new Vec3(pos.x, pos.y, pos.z);
+
+    const existing = this.bot.blockAt(target);
+    if (!existing) throw new Error("that chunk isn't loaded");
+    if (!REPLACEABLE.has(existing.name)) throw new Error(`${existing.name} is already there`);
+
+    // Get in range before looking for a reference — an unloaded/far chunk gives
+    // bad neighbour reads.
+    await this.ensureReach(target);
+
+    const ref = this.findPlacementRef(target);
+    if (!ref) throw new Error("nothing solid to place against");
+
+    // Equipping is a server transaction; placing in the same tick gets rejected.
+    // Skipping the no-op case also saves a round trip on every block of a
+    // single-material build, which is most of them.
+    if (this.bot.heldItem?.name !== item) {
+      await this.equip(item);
+      await this.bot.waitForTicks(1);
+    }
+
+    // Sneak while placing. Without it, placing against a chest, furnace, door,
+    // or crafting table opens its UI instead of placing the block — which then
+    // leaves an open window that blocks the next placement too. Mineflayer does
+    // not do this for us; generic_place.js still has the TODO.
+    this.bot.setControlState("sneak", true);
+    try {
+      await this.withTimeout(this.bot.placeBlock(ref.block, ref.face), PLACE_TIMEOUT_MS);
+    } finally {
+      this.bot.setControlState("sneak", false);
+    }
+  }
+
+  /**
+   * Path into placement range, then verify. Throwing here is deliberate: an
+   * out-of-range placeBlock is not an error in mineflayer, it's a five-second
+   * silent timeout, so it's much cheaper to refuse up front.
+   */
+  private async ensureReach(target: Vec3): Promise<void> {
+    if (this.bot.entity.position.distanceTo(target) <= PLACE_REACH) return;
+    await this.gotoSafe(new goals.GoalNear(target.x, target.y, target.z, 2), 8000);
+    const after = this.bot.entity.position.distanceTo(target);
+    if (after > PLACE_REACH) throw new Error(`can't get close enough (${after.toFixed(1)} blocks)`);
+  }
+
+  /** Reject a promise that outlives `ms`, so one bad call can't stall a batch. */
+  private withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+      p,
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error("placement timed out")), ms)),
+    ]);
+  }
+
+  /**
+   * Find a solid neighbour to place against, and the face vector pointing from
+   * it to the target. Prefers the block below (the most reliable placement, and
+   * how a person would build), then the sides, then the ceiling.
+   */
+  private findPlacementRef(target: Vec3): { block: NonNullable<ReturnType<Bot["blockAt"]>>; face: Vec3 } | null {
+    const faces: Array<[number, number, number]> = [
+      [0, -1, 0], // below → place on top of it
+      [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], // sides
+      [0, 1, 0], // above → place underneath it
+    ];
+    for (const [dx, dy, dz] of faces) {
+      const refPos = target.offset(dx, dy, dz);
+      const block = this.bot.blockAt(refPos);
+      if (!block || REPLACEABLE.has(block.name)) continue;
+      // Only a full cube reliably accepts a placement against it.
+      if (block.boundingBox !== "block") continue;
+      // Face points from the reference back toward the target.
+      return { block, face: new Vec3(-dx, -dy, -dz) };
+    }
+    return null;
+  }
+
+  blockNameAt(pos: Vec3Lit): string | null {
+    return this.bot.blockAt(new Vec3(pos.x, pos.y, pos.z))?.name ?? null;
+  }
+
+  isFree(pos: Vec3Lit): boolean {
+    const name = this.blockNameAt(pos);
+    return name !== null && REPLACEABLE.has(name);
+  }
+
+  findGround(pos: Vec3Lit): Vec3Lit | null {
+    // Scan down from a little above, looking for solid ground with two blocks
+    // of clearance above it — the first spot a structure could actually sit on.
+    for (let y = pos.y + 4; y >= pos.y - 8; y--) {
+      const floor = this.blockNameAt({ x: pos.x, y, z: pos.z });
+      if (floor === null || REPLACEABLE.has(floor)) continue;
+      const feet = this.isFree({ x: pos.x, y: y + 1, z: pos.z });
+      const head = this.isFree({ x: pos.x, y: y + 2, z: pos.z });
+      if (feet && head) return { x: pos.x, y: y + 1, z: pos.z };
+    }
+    return null;
+  }
+
+  async placeMany(
+    placements: Array<{ pos: Vec3Lit; item: string }>,
+  ): Promise<{ placed: number; skipped: number; failed: number }> {
+    let placed = 0;
+    let skipped = 0;
+    let failed = 0;
+    let consecutiveFailures = 0;
+
+    for (const p of placements) {
+      if (!this.isFree(p.pos)) {
+        skipped++;
+        continue;
+      }
+      try {
+        await this.placeBlock(p.pos, p.item);
+        placed++;
+        consecutiveFailures = 0;
+      } catch {
+        failed++;
+        consecutiveFailures++;
+        // A long failure run means something systemic — out of material, or the
+        // structure is somewhere unreachable. Grinding through another 150
+        // doomed placements just wastes the player's time.
+        if (consecutiveFailures >= 8) break;
+      }
+      // The server acks a placement asynchronously; firing the next one
+      // immediately races the block update, so placement N+1 decides against a
+      // stale world. waitForTicks rather than setTimeout because it rides the
+      // bot's physics clock, which is what the pacing actually depends on.
+      await this.bot.waitForTicks(PLACE_TICKS);
+    }
+    return { placed, skipped, failed };
+  }
+
+  async digTunnel(length: number, opts?: { torchEvery?: number }): Promise<number> {
+    const torchEvery = opts?.torchEvery ?? 0;
+    let mined = 0;
+
+    // Cardinal direction from view yaw, same snap as mineStaircase.
+    const yaw = this.bot.entity.yaw;
+    const fx = -Math.sin(yaw);
+    const fz = -Math.cos(yaw);
+    let dx = 0;
+    let dz = 0;
+    if (Math.abs(fx) >= Math.abs(fz)) dx = fx >= 0 ? 1 : -1;
+    else dz = fz >= 0 ? 1 : -1;
+
+    const danger = (b: ReturnType<Bot["blockAt"]>) => !!b && /lava|fire|water/.test(b.name);
+    const undug = (b: ReturnType<Bot["blockAt"]>) => !!b && b.name !== "air" && !/bedrock/.test(b.name);
+
+    for (let i = 0; i < length; i++) {
+      const f = this.bot.entity.position.floored();
+
+      // Look one step ahead for lava before committing to the dig. Breaking
+      // into a lava pool at head height is the classic strip-mining death.
+      const ahead = [f.offset(dx, 0, dz), f.offset(dx, 1, dz), f.offset(dx * 2, 0, dz)];
+      if (ahead.some((p) => danger(this.bot.blockAt(p)))) break;
+
+      // A 1x2 corridor: feet level and head level.
+      for (const p of [f.offset(dx, 0, dz), f.offset(dx, 1, dz)]) {
+        const b = this.bot.blockAt(p);
+        if (!undug(b)) continue;
+        await this.equipBestToolFor(b!);
+        try {
+          await this.bot.dig(b!);
+          mined++;
+        } catch {
+          /* unreachable — keep going, the walk forward may clear it */
+        }
+      }
+
+      // Drive forward manually; pathfinder is unreliable in a 1-wide corridor.
+      await this.bot.lookAt(new Vec3(f.x + dx + 0.5, this.bot.entity.position.y, f.z + dz + 0.5), true);
+      this.bot.setControlState("forward", true);
+      const t0 = Date.now();
+      const startX = this.bot.entity.position.x;
+      const startZ = this.bot.entity.position.z;
+      while (Date.now() - t0 < 1500) {
+        await this.settle(100);
+        const moved = Math.abs(this.bot.entity.position.x - startX) + Math.abs(this.bot.entity.position.z - startZ);
+        if (moved >= 0.9) break;
+      }
+      this.bot.setControlState("forward", false);
+      await this.settle(100);
+
+      // Torch the corridor so it doesn't spawn mobs behind us.
+      if (torchEvery > 0 && i > 0 && i % torchEvery === 0) {
+        const here = this.bot.entity.position.floored();
+        try {
+          await this.placeBlock({ x: here.x, y: here.y, z: here.z }, "torch");
+        } catch {
+          /* out of torches or no wall to hang it on — not worth failing over */
+        }
+      }
+    }
+
+    this.bot.clearControlStates();
+    return mined;
   }
 
   async dropItem(name: string, count?: number): Promise<void> {
