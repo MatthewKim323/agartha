@@ -51,7 +51,10 @@ const REPLACEABLE = new Set([
  * it's free. The 1.20.5+ server limit is 4.5 (block_interaction_range); 4.0
  * leaves margin for the bot drifting mid-place.
  */
-const PLACE_REACH = 4.0;
+const PLACE_REACH = 4.2;
+
+/** Player eye height. The server measures interaction range from here, not the feet. */
+const EYE_HEIGHT = 1.62;
 
 /** Ticks to wait between placements. Below ~2 ticks the server starts dropping them. */
 const PLACE_TICKS = 2;
@@ -79,10 +82,38 @@ export class BotController implements BotControl {
   /** Cache of friendly-name → block ids (the registry is static per session). */
   private blockIdCache = new Map<string, number[]>();
 
+  /**
+   * Entity ids we have seen actually DIE, as opposed to merely disappear.
+   *
+   * Mineflayer emits `entityDead` (entity status 3) and `entityGone` (left
+   * tracking range / unloaded) as separate events, and absence from
+   * `bot.entities` means either one. Prey flees the moment it's hit, so a cow
+   * that runs out of range is indistinguishable from a cow that died if you
+   * only check existence — which is how a hunt for 2 chickens reported 2 kills
+   * having produced 1 chicken.
+   *
+   * Bounded: this is a rolling window for the current task, not a ledger.
+   */
+  private readonly recentDeaths = new Set<number>();
+
   constructor(
     private bot: Bot,
     private readonly cfg: Config,
-  ) {}
+  ) {
+    this.watchDeaths();
+  }
+
+  private watchDeaths(): void {
+    this.bot.on("entityDead", (entity) => {
+      this.recentDeaths.add(entity.id);
+      // Ids are per-session and monotonic; keeping the last few hundred is
+      // plenty to span a task and can't grow without bound.
+      if (this.recentDeaths.size > 512) {
+        const oldest = this.recentDeaths.values().next().value;
+        if (oldest !== undefined) this.recentDeaths.delete(oldest);
+      }
+    });
+  }
 
   /**
    * Re-point this controller at a fresh Mineflayer connection after a
@@ -92,6 +123,10 @@ export class BotController implements BotControl {
   rebind(bot: Bot): void {
     this.bot = bot;
     this.blockIdCache.clear();
+    // Entity ids are only meaningful within one connection, and the listener
+    // was attached to the old bot object.
+    this.recentDeaths.clear();
+    this.watchDeaths();
   }
 
   // ── Smart item usage ──────────────────────────────────────────────────────
@@ -216,10 +251,23 @@ export class BotController implements BotControl {
    * silent timeout, so it's much cheaper to refuse up front.
    */
   private async ensureReach(target: Vec3): Promise<void> {
-    if (this.bot.entity.position.distanceTo(target) <= PLACE_REACH) return;
+    if (this.reachTo(target) <= PLACE_REACH) return;
     await this.gotoSafe(new goals.GoalNear(target.x, target.y, target.z, 2), 8000);
-    const after = this.bot.entity.position.distanceTo(target);
+    const after = this.reachTo(target);
     if (after > PLACE_REACH) throw new Error(`can't get close enough (${after.toFixed(1)} blocks)`);
+  }
+
+  /**
+   * Distance the way the SERVER measures it: from the eye to the centre of the
+   * target block. Measuring from `entity.position` (the feet) instead is about
+   * 1.6 blocks too pessimistic vertically, which made the bot refuse to place
+   * the top course of anything — a 4x3 wall lost its top row and a room lost
+   * its roof, both reported as "wouldn't place" when they were well in range.
+   */
+  private reachTo(target: Vec3): number {
+    return this.bot.entity.position
+      .offset(0, EYE_HEIGHT, 0)
+      .distanceTo(target.offset(0.5, 0.5, 0.5));
   }
 
   /** Reject a promise that outlives `ms`, so one bad call can't stall a batch. */
@@ -236,21 +284,37 @@ export class BotController implements BotControl {
    * how a person would build), then the sides, then the ceiling.
    */
   private findPlacementRef(target: Vec3): { block: NonNullable<ReturnType<Bot["blockAt"]>>; face: Vec3 } | null {
-    const faces: Array<[number, number, number]> = [
-      [0, -1, 0], // below → place on top of it
-      [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], // sides
-      [0, 1, 0], // above → place underneath it
+    const eye = this.bot.entity.position.offset(0, EYE_HEIGHT, 0);
+    const offsets: Array<[number, number, number]> = [
+      [0, -1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0],
     ];
-    for (const [dx, dy, dz] of faces) {
+
+    const candidates: Array<{ block: NonNullable<ReturnType<Bot["blockAt"]>>; face: Vec3; visibility: number }> = [];
+    for (const [dx, dy, dz] of offsets) {
       const refPos = target.offset(dx, dy, dz);
       const block = this.bot.blockAt(refPos);
       if (!block || REPLACEABLE.has(block.name)) continue;
       // Only a full cube reliably accepts a placement against it.
       if (block.boundingBox !== "block") continue;
+
       // Face points from the reference back toward the target.
-      return { block, face: new Vec3(-dx, -dy, -dz) };
+      const face = new Vec3(-dx, -dy, -dz);
+      // The clicked face sits on the reference block's surface, facing the
+      // target. It can only be clicked if the eye is on that side of it: the
+      // server raycasts, and you cannot click the TOP of a block that is above
+      // you. Preferring "below" unconditionally is why a pillar stopped dead
+      // three blocks up, and why walls and rooms lost their top course.
+      const faceCentre = refPos.offset(0.5, 0.5, 0.5).plus(face.scaled(0.5));
+      const visibility = face.dot(eye.minus(faceCentre));
+      candidates.push({ block, face, visibility });
     }
-    return null;
+    if (candidates.length === 0) return null;
+
+    // Most-visible face wins. A negative best means every available face points
+    // away from us — the placement will likely be rejected, but it's still the
+    // best available and worth one attempt rather than a guaranteed skip.
+    candidates.sort((a, b) => b.visibility - a.visibility);
+    return candidates[0]!;
   }
 
   blockNameAt(pos: Vec3Lit): string | null {
@@ -940,11 +1004,16 @@ export class BotController implements BotControl {
 
   entityExists(entityId: number): boolean {
     const e = this.bot.entities[entityId];
-    // Mineflayer removes entities on death/unload, but a corpse can linger a
-    // tick with health 0 — treat that as gone so kill counts stay honest.
+    // A corpse can linger a tick at 0 health; treat it as gone so we stop
+    // swinging at it. Absence here means dead OR out of range — use
+    // entityDied() when the distinction matters.
     if (!e) return false;
     const hp = (e as { health?: number }).health;
     return hp === undefined || hp > 0;
+  }
+
+  entityDied(entityId: number): boolean {
+    return this.recentDeaths.has(entityId);
   }
 
   // ── Containers ───────────────────────────────────────────────────────────

@@ -28,18 +28,21 @@ async function huntBody(ctx: SkillContext, args?: Record<string, unknown>): Prom
     if (weapon) await ctx.control.equip(weapon);
     const cooldown = attackCooldownMs(weapon);
 
-    let kills = 0;
     let swings = 0;
+    let escaped = 0;
+    const killed = new Set<number>();
     let engagedId: number | null = null;
 
     // Bounded so a mob that can't be reached (across water, in a pen) ends the
     // skill instead of pinning the goal runner forever.
-    for (let i = 0; i < 240 && kills < count; i++) {
-      // Did whatever we were hitting stop existing? That's a kill.
+    for (let i = 0; i < 240 && killed.size < count; i++) {
+      // Did the thing we were hitting die, or just get away? Those are
+      // different outcomes and only one of them is food.
       if (engagedId !== null && !ctx.control.entityExists(engagedId)) {
-        kills++;
+        if (ctx.control.entityDied(engagedId)) killed.add(engagedId);
+        else escaped++;
         engagedId = null;
-        if (kills >= count) break;
+        if (killed.size >= count) break;
       }
 
       const prey = ctx.control.nearestEntity({ match: target, maxDistance: maxRange });
@@ -61,14 +64,22 @@ async function huntBody(ctx: SkillContext, args?: Record<string, unknown>): Prom
     }
 
     // One final check so the last kill of the loop is counted.
-    if (engagedId !== null && !ctx.control.entityExists(engagedId)) kills++;
+    if (engagedId !== null && !ctx.control.entityExists(engagedId)) {
+      if (ctx.control.entityDied(engagedId)) killed.add(engagedId);
+      else escaped++;
+    }
 
-    const collected = await ctx.control.collectNearbyDrops({ radius: 8 });
+    await ctx.control.collectNearbyDrops({ radius: 8 });
 
-    if (kills === 0 && swings === 0) return `couldn't find any ${target} around here`;
-    if (kills === 0) return `swung at a ${target} but it got away`;
+    const kills = killed.size;
     const what = target === "food" ? "food" : target;
-    return `got ${kills} ${what}${kills > 1 ? "" : ""}, picked up ${collected} drop${collected === 1 ? "" : "s"}`;
+
+    if (kills === 0 && swings === 0) return `couldn't find any ${what} around here`;
+    if (kills === 0) return `swung at a ${what} but it got away`;
+    // Escapes are reported because they're the difference between "we have
+    // dinner" and "we chased something into a lake".
+    const tail = escaped > 0 ? `, ${escaped} got away` : "";
+    return `killed ${kills} ${what}${tail}`;
   });
 }
 

@@ -103,8 +103,19 @@ export interface BotControl {
     allowPlayers?: boolean;
   }): EntityInfo | null;
 
-  /** Is this entity still loaded and alive? Used to tell a kill from a flee. */
+  /**
+   * Is this entity still loaded and alive? False means dead OR out of range —
+   * mineflayer removes entities for both reasons, so this cannot distinguish
+   * them. Use `entityDied` to count kills.
+   */
   entityExists(entityId: number): boolean;
+
+  /**
+   * Did this entity actually die? Backed by mineflayer's `entityDead` event,
+   * which is distinct from `entityGone` (left tracking range). Prey flees when
+   * hit, so counting kills by disappearance over-counts every escape.
+   */
+  entityDied(entityId: number): boolean;
 
   // ── Containers (M3 world memory) ──
 
