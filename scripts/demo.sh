@@ -20,14 +20,26 @@ set -a; . ./.env; set +a
 
 echo "preflight"
 
-# 1. Minecraft. Aternos stops the server once it is empty, and the info proxy on
-#    25565 keeps answering status even then, so check the real port.
-if command -v nc >/dev/null && nc -z -w 5 "$MC_SERVER_HOST" "$MC_SERVER_PORT" 2>/dev/null; then
-  ok "minecraft $MC_SERVER_HOST:$MC_SERVER_PORT reachable"
+# 1. Minecraft. A TCP connect check is NOT enough: Aternos's info proxy accepts
+#    connections and answers status long after the server has stopped, so nc
+#    reports healthy while every login times out at 60s. Do a real status ping.
+#    It also polls, because Aternos takes a minute or two to finish booting
+#    after the panel flips to Online.
+if mc_out=$(bun scripts/mc-status.ts 2>&1); then
+  ok "$mc_out"
 else
-  echo "  ${RED}FAIL${OFF} minecraft $MC_SERVER_HOST:$MC_SERVER_PORT is not reachable"
-  echo "       Aternos sleeps when empty. Start it at https://aternos.org and wait for Online."
-  exit 1
+  warn "minecraft not ready yet:"
+  echo "${DIM}${mc_out}${OFF}" | sed 's/^/       /'
+  printf "       waiting up to 3min for it to finish booting (ctrl-c to give up)"
+  booted=0
+  for _ in $(seq 1 36); do
+    printf "."
+    sleep 5
+    if mc_out=$(bun scripts/mc-status.ts 2>&1); then booted=1; break; fi
+  done
+  echo
+  [ "$booted" = "1" ] || die "minecraft never came up. Start it at https://aternos.org"
+  ok "$mc_out"
 fi
 
 # 2. Keys
