@@ -92,8 +92,16 @@ try {
   };
   const motd = typeof j.description === "string" ? j.description : JSON.stringify(j.description ?? "");
 
-  // Aternos's proxy answers with a "Connect to host:port" MOTD and 0/0 slots.
-  // That is not the server, and logging in against it hangs.
+  // Aternos's proxy impersonates the server even when it is stopped. It has
+  // been seen answering with: a "Connect to host:port" MOTD, 0/0 slots, and a
+  // version string of "§c● Offline". Any of those means logins will hang, so
+  // treat them all as down rather than trusting that something replied.
+  const version = (j.version?.name ?? "").replace(/§./g, "").trim();
+  if (/offline|starting|queue/i.test(version)) {
+    console.error(`${host}:${port} answered, but reports status "${version}" — the server is not running.`);
+    console.error("  Start it at https://aternos.org and wait for the panel to say Online.");
+    process.exit(1);
+  }
   if (/connect to/i.test(motd) || (j.players?.max ?? 0) === 0) {
     console.error(`${host}:${port} is the Aternos info proxy, not the server.`);
     console.error(`  motd: ${motd.replace(/§./g, "").slice(0, 120)}`);

@@ -102,11 +102,43 @@ async function main(): Promise<void> {
     }
   }, 5000);
 
+  /**
+   * Continuous input clock.
+   *
+   * Gemini's VAD decides your turn ended by HEARING silence. Discord's receiver
+   * only emits frames while someone is actually speaking, so if we forward
+   * frames as they arrive, the model gets speech and then nothing — no silence,
+   * so the turn never closes and it waits forever. Measured: without this the
+   * transcript truncates mid-sentence and no reply is ever generated.
+   *
+   * So we run a 20ms clock and always send something: mic audio when there is
+   * any, silence otherwise. This mirrors the playback side, which already pads
+   * with silence for the same class of reason.
+   */
+  const FRAME_MS = 20;
+  const MODEL_FRAME_BYTES = (16_000 * 2 * FRAME_MS) / 1000; // 640 bytes @16kHz mono
+  const SILENCE = Buffer.alloc(MODEL_FRAME_BYTES);
+  let micBuffer = Buffer.alloc(0);
+
   const hub = new VoiceHub((pcm48) => {
     stats.micFrames++;
     stats.micBytes += pcm48.length;
-    live.sendAudio(discordToModel(pcm48));
+    micBuffer = Buffer.concat([micBuffer, discordToModel(pcm48)]);
   });
+
+  setInterval(() => {
+    if (!live.connected) return;
+    let frame: Buffer;
+    if (micBuffer.length >= MODEL_FRAME_BYTES) {
+      frame = micBuffer.subarray(0, MODEL_FRAME_BYTES);
+      micBuffer = micBuffer.subarray(MODEL_FRAME_BYTES);
+      // Don't let a backlog build if decoding briefly outruns the clock.
+      if (micBuffer.length > MODEL_FRAME_BYTES * 25) micBuffer = micBuffer.subarray(micBuffer.length - MODEL_FRAME_BYTES * 25);
+    } else {
+      frame = SILENCE;
+    }
+    live.sendAudio(frame);
+  }, FRAME_MS);
 
   const turns = new TurnQueue(async (text) => {
     exchanges.push({ who: "matt", said: text });

@@ -102,6 +102,17 @@ export class LiveSession {
             >)
           : undefined,
         inputAudioTranscription: {},
+        // Turn-taking. The model decides you're done by hearing silence, so
+        // silenceDurationMs is paid on EVERY turn as pure latency before it
+        // even begins to answer. The default is conservative; 400ms is short
+        // enough to feel responsive and long enough to survive a mid-sentence
+        // breath. Barge-in stays on so it can be interrupted.
+        realtimeInputConfig: {
+          automaticActivityDetection: {
+            silenceDurationMs: Number(env("VAD_SILENCE_MS") ?? 400),
+            prefixPaddingMs: Number(env("VAD_PREFIX_MS") ?? 120),
+          },
+        },
       },
       callbacks: {
         onopen: () => log.info(`live session open (${model}, ${this.opts.tools.length} tools)`),
