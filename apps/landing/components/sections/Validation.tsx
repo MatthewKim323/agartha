@@ -19,21 +19,6 @@ import TweetEmbed from '@/components/TweetEmbed';
 const QUOTE =
   'one of the products that i would love to exist is what i call a contextual companion for my son who plays minecraft.';
 
-const BEATS = [
-  {
-    k: 'The ask',
-    v: 'A companion that sits inside the game a kid already plays, rather than another app beside it.',
-  },
-  {
-    k: 'The thesis',
-    v: 'a16z has written publicly that AI will open a new category of games. This is the companion-shaped corner of it.',
-  },
-  {
-    k: 'What we built',
-    v: 'A duo partner that joins the world, keeps up in voice, and remembers you between sessions.',
-  },
-] as const;
-
 export default function Validation() {
   return (
     <section className="relative overflow-hidden bg-paper px-6 py-28 md:px-10 md:py-36">
@@ -43,9 +28,9 @@ export default function Validation() {
           className="max-w-5xl text-[42px] leading-[1.12] font-medium tracking-[-0.045em] text-ink md:text-[64px]"
           duration={1}
           lines={[
-            'a16z partners are looking',
-            'for a gaming companion.',
-            'We already built one.',
+            'a16z partners think gaming',
+            'companions are what comes',
+            'next. So we built agar.',
           ]}
         />
 
@@ -75,25 +60,10 @@ export default function Validation() {
           <TweetEmbed url="https://x.com/a16z/status/2022014770682245610" />
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-ink/10 md:grid-cols-3">
-          {BEATS.map((b) => (
-            <div key={b.k} className="bg-paper p-8">
-              <p className="font-mono text-[11px] tracking-widest text-muted uppercase">
-                {b.k}
-              </p>
-              <p className="mt-4 max-w-[34ch] text-[16px] leading-[1.55] text-ink">
-                {b.v}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-10 max-w-[62ch] font-mono text-[11px] leading-[1.8] text-faint">
-          Quoted from a public statement. a16z has not seen agar, has no
-          involvement in it, and none of this implies otherwise. The point is
-          only that the shape was described out loud by someone who funds
-          companies, and we went and built it.
+        <p className="mt-10 font-mono text-[11px] tracking-widest text-faint uppercase">
+          Public statement. No affiliation with a16z.
         </p>
+
       </div>
     </section>
   );
