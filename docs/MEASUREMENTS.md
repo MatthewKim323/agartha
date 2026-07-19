@@ -30,6 +30,44 @@ The predecessor's prefetch timed out on **28 of its last 40 attempts** against a
 2500ms budget (`~/.jabby/launchd.out.log`). One entry recorded 157,746ms, which
 means its kill escalation was not reliably reaping the child process.
 
+## Tool dispatch
+
+Measured 2026-07-18 against the live bot on jabisonucsb.aternos.me:59754,
+Minecraft 1.20.6, over MCP on localhost.
+
+| | predecessor | agartha |
+|---|---|---|
+| connect + handshake | per call | **15ms**, paid once at startup |
+| read tool | full `claude -p` cold start | **1-15ms** (median 3) |
+| `chat` | " | **3ms** |
+| `set_goal` | " | **1ms** |
+
+The predecessor spawned a full agent CLI per reaction, behind a 10s cooldown.
+This is the single biggest change in the project, and it is the number that
+matters most: once the model emits a function call, the bot moves in about
+three milliseconds.
+
+`set_goal` returning in 1ms is the non-blocking goal runner working as
+designed. It returns immediately and reports completion later, which is what
+makes "aight, otw" possible while the bot is already pathing.
+
+### End-to-end action, verified in-world
+
+`set_goal {intent: {kind: "skill", name: "chop_tree"}, label: "get wood"}`
+
+```
+state: IDLE -> TASK          goal: get wood [active]
+inventory: oak_log x3  ->  oak_log x6, birch_log x4
+```
+
+The full chain works against a real server: MCP call, goal runner, skill
+execution, blocks actually mined.
+
+## Reflex loop
+
+Holds **15Hz (67ms/tick)** with the bot connected, the MCP server serving, and
+the slow loop running. Confirmed from a live boot, not inferred.
+
 ## Voice
 
 **Not measured.** No `GEMINI_API_KEY` has been issued, so the Live session has
@@ -46,25 +84,26 @@ first sentence @ 13011ms  replied @ 13418ms
 
 6.5s to 13s to first audio. The target is under 600ms. That gap is the project.
 
-## Reflex loop
-
-**Not re-measured.** The 15Hz fast loop is carried over unmodified, so it has
-not regressed by change. What is untested is whether it *holds* 15Hz with the
-voice agent competing for CPU on the same machine, which needs a live server.
-
 ## What is still unverified
 
 | Claim | Status |
 |---|---|
 | gbrain retrieval is ~25ms warm | measured |
 | the cache eliminates repeat cost | measured |
+| tool dispatch is ~3ms | measured against the live bot |
+| a goal executes end to end in-world | verified (wood actually chopped) |
+| fast loop holds 15Hz with the stack up | measured (67ms/tick) |
 | MCP auth rejects bad tokens | tested (6 cases incl. prefix) |
 | turn queue never drops input | tested (regression test) |
 | audio conversion is correct | tested (integer ratios, frame sizes) |
 | persona loads jabby's real files | verified, all 4 files, 16k chars |
-| voice-to-first-audio under 600ms | **UNVERIFIED — no API key** |
-| voice-to-action under 1s | **UNVERIFIED — no API key, no live server** |
-| fast loop holds 15Hz under load | **UNVERIFIED — needs a live server** |
+| a Gemini Live session opens | verified (socket only) |
+| **voice-to-first-audio under 600ms** | **UNVERIFIED — audio has never flowed** |
+| **voice-to-action under 1s** | **UNVERIFIED — needs a Discord call** |
+
+Everything except the voice loop itself is now measured. The remaining gap is
+narrow and specific: audio in both directions, a tool call round-tripping from
+speech, and the latency of that path.
 
 ## Reproducing
 
