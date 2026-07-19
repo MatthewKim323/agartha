@@ -115,7 +115,7 @@ export default function LatencyFlow() {
   return (
     <section className="relative overflow-hidden bg-paper px-6 py-28 md:px-10 md:py-36">
       <div ref={root} className="mx-auto max-w-6xl">
-        <p className="font-mono text-[12px] tracking-widest text-muted">◆ TO SCALE</p>
+        <p className="font-mono text-[12px] tracking-widest text-muted">TO SCALE</p>
         <RevealText
           as="h2"
           className="mt-5 max-w-3xl text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-ink md:text-[64px]"

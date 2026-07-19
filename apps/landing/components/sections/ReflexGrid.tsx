@@ -73,7 +73,7 @@ export default function ReflexGrid() {
     <section className="relative overflow-hidden bg-surface px-6 py-28 md:px-10 md:py-36">
       <div className="mx-auto max-w-6xl">
         <p className="font-mono text-[12px] tracking-widest text-accent">
-          ◆ THE RULE
+          THE RULE
         </p>
         <RevealLines
           as="h2"

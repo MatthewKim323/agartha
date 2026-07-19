@@ -12,7 +12,7 @@ import {
 } from 'motion/react';
 import { DUR, EASE } from '@/lib/motion';
 import { RevealOnMount } from '@/components/RevealText';
-import VoxelField from '@/components/VoxelField';
+import SkillDiagram, { type SkillKind } from '@/components/SkillDiagram';
 
 // Full-bleed image slider.
 //
@@ -37,37 +37,37 @@ const SKILLS = [
   {
     name: 'Chop tree',
     file: 'chop-tree.ts',
-    seed: 9173,
+    kind: 'chop' as SkillKind,
     body: 'Walks to the nearest tree, fells it, and collects what drops. The goal returns on the first tick, so "aight, otw" lands while the bot is already pathing.',
   },
   {
     name: 'Mine down',
     file: 'mine-down.ts',
-    seed: 18346,
+    kind: 'mine' as SkillKind,
     body: 'Digs a safe staircase rather than a straight drop, with the reflex loop watching for lava the entire way down. No model involved in the safety check.',
   },
   {
     name: 'Fetch item',
     file: 'fetch-item.ts',
-    seed: 27519,
+    kind: 'fetch' as SkillKind,
     body: 'Finds an item in the world or in storage and brings it back. Reports completion when it actually has the thing, not when it starts looking.',
   },
   {
     name: 'Combat assist',
     file: 'combat-assist.ts',
-    seed: 36692,
+    kind: 'combat' as SkillKind,
     body: 'Engages hostiles near you and disengages when they are gone. Runs on the fast loop, so it reacts at a speed a language model could never hit.',
   },
   {
     name: 'Scout ahead',
     file: 'scout-ahead.ts',
-    seed: 45865,
+    kind: 'scout' as SkillKind,
     body: 'Ranges out in front of you and reports what it finds. Useful precisely because it can talk about what it sees while it is still moving.',
   },
   {
     name: 'Craft',
     file: 'craft.ts',
-    seed: 55038,
+    kind: 'craft' as SkillKind,
     body: 'Hand-rolled 3x3 crafting that works around a mineflayer no-op on 1.20.6. Inherited from itto and kept intact, because rewriting it re-earns the bug.',
   },
 ] as const;
@@ -155,23 +155,32 @@ export default function SkillSlider() {
       }}
       tabIndex={-1}
     >
-      {/* Background. Crossfade only — the image holds still and the copy
-          carries the movement, matching the reference. */}
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={active.seed}
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: DUR.slow, ease: EASE.expo }}
-        >
-          <VoxelField seed={active.seed} scale={0.62} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/25" />
-        </motion.div>
-      </AnimatePresence>
+      <div className="relative mx-auto flex min-h-svh w-full max-w-6xl flex-col justify-center px-6 py-20 md:px-10">
+        <p className="font-mono text-[12px] tracking-widest text-white/40">
+          SKILL LIBRARY
+        </p>
 
-      <div className="relative flex min-h-svh flex-col justify-end px-6 py-14 md:px-10 md:py-20">
+        <div className="mt-10 grid grid-cols-1 items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-16">
+          {/* Diagram panel. Framed rather than full-bleed, so this section does
+              not repeat the hero's composition. */}
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#131315]">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={`${active.kind}-viz`}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: DUR.fast, ease: EASE.expo }}
+              >
+                <SkillDiagram kind={active.kind} />
+              </motion.div>
+            </AnimatePresence>
+            <span className="pointer-events-none absolute bottom-4 left-5 font-mono text-[11px] tracking-widest text-white/25 uppercase">
+              {active.file}
+            </span>
+          </div>
+
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={active.name}
@@ -181,12 +190,9 @@ export default function SkillSlider() {
             transition={{ duration: DUR.base, ease: EASE.expo }}
             className="max-w-xl"
           >
-            <p className="font-mono text-[12px] tracking-widest text-accent">
-              {active.file}
-            </p>
             <RevealOnMount
               as="h3"
-              className="mt-4 text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-white md:text-[48px]"
+              className="text-[42px] leading-[1.2] font-medium tracking-[-0.04em] text-white md:text-[48px]"
               delay={0.05}
             >
               {active.name}
@@ -196,6 +202,7 @@ export default function SkillSlider() {
             </p>
           </motion.div>
         </AnimatePresence>
+        </div>
 
         <a
           href="https://github.com/MatthewKim323/agartha/tree/main/apps/mc-bot/src/skills"
