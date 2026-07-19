@@ -74,13 +74,12 @@ export default function ReflexGrid() {
         <p className="font-mono text-[12px] tracking-widest text-accent">
           ◆ THE RULE
         </p>
-        <RevealText
+        <RevealLines
           as="h2"
           className="mt-5 max-w-4xl text-[48px] leading-[1.2] font-medium tracking-[-0.06em] text-white md:text-[64px]"
           duration={1}
-        >
-          Nothing slow runs in front of speech
-        </RevealText>
+          lines={['Nothing slow runs', 'in front of speech']}
+        />
         <RevealLines
           className="mt-6 max-w-2xl text-[16px] leading-[1.62] text-white/60"
           delay={0.1}

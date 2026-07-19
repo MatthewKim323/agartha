@@ -23,8 +23,8 @@ const COLUMNS = [
     heading: 'Why It Matters',
     lines: [
       'The version before this spawned a',
-      'fresh process every turn and took six',
-      'to thirteen seconds to say a word.',
+      'fresh process every turn, and took',
+      'six to thirteen seconds to speak.',
       'Removing that spawn is the rewrite.',
       'Once the model emits a call, the bot',
       'moves in about three milliseconds.',
